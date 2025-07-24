@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"],
+      "@frontend/*": ["frontend/*"],
+      "@backend/*": ["backend/*"],
+      "@shared/*": ["shared/*"],
+      "@types/*": ["frontend/types/*"],
+      "@utils/*": ["frontend/utils/*"],
+      "@bot/*": ["frontend/bot/*"],
+      "@wallet/*": ["frontend/wallet/*"]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests",
+    "docs",
+    "scripts",
+    "config"
+  ],
+  "ts-node": {
+    "esm": true
+  }
+} 
