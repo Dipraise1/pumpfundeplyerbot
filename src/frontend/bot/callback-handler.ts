@@ -130,7 +130,6 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
     };
 
     await ctx.editMessageText(welcomeMessage, {
-      parse_mode: 'MarkdownV2',
       reply_markup: keyboard
     });
   }
@@ -161,7 +160,6 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
 *Example: "Pine" or "MyToken"*`;
 
     await ctx.editMessageText(createTokenMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -189,7 +187,6 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
 *Enter buy parameters:*`;
 
     await ctx.editMessageText(buyTokensMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -217,7 +214,6 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
 *Enter sell parameters:*`;
 
     await ctx.editMessageText(sellTokensMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -261,7 +257,6 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
 *Just type the wallet name below:*`;
 
     await ctx.editMessageText(createWalletMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -282,7 +277,6 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
 *Enter wallet name and private key:*`;
 
     await ctx.editMessageText(importWalletMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -296,7 +290,6 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
 You don't have any wallets yet\\. Create or import a wallet to get started\\!`;
 
       await ctx.editMessageText(noWalletsMessage, {
-        parse_mode: 'MarkdownV2'
       });
       return;
     }
@@ -320,7 +313,6 @@ You don't have any wallets yet\\. Create or import a wallet to get started\\!`;
     }
 
     await ctx.editMessageText(walletsMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -355,7 +347,6 @@ You don't have any wallets yet\\. Create or import a wallet to get started\\!`;
 • All systems operational`;
 
     await ctx.editMessageText(marketStatsMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -383,9 +374,7 @@ You don't have any wallets yet\\. Create or import a wallet to get started\\!`;
 • Monitor market trends
 • Don't invest more than you can afford to lose`;
 
-    await ctx.editMessageText(quickTradeMessage, {
-      parse_mode: 'MarkdownV2'
-    });
+    await ctx.editMessageText(quickTradeMessage);
   }
 
   private async handleSettings(ctx: Context, user: User): Promise<void> {
@@ -412,7 +401,6 @@ You don't have any wallets yet\\. Create or import a wallet to get started\\!`;
 *Use /settings to modify these preferences*`;
 
     await ctx.editMessageText(settingsMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 
@@ -446,7 +434,6 @@ You don't have any wallets yet\\. Create or import a wallet to get started\\!`;
 • [Community](https://t\\.me/pumpswap\\_community)`;
 
     await ctx.editMessageText(downloadAppMessage, {
-      parse_mode: 'MarkdownV2'
     });
   }
 } 

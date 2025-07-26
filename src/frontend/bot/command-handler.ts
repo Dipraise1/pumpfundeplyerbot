@@ -400,28 +400,30 @@ Your private key is encrypted and stored securely\\.`;
     const args = message.text?.split(' ') || [];
     
     if (args.length < 5) {
-      const createTokenMessage = `
-🪙 *Create New Token*
+      const createTokenMessage = `🪙 Create New Token
 
-*Usage:* \`/create <name> <symbol> <description> <image_url>\`
+Usage: /create <name> <symbol> <description> <image_url>
 
-*Example:*
-\`/create MyMeme MM "Fun meme coin" https://example\\.com/image\\.png\`
+Example:
+/create MyMeme MM "Fun meme coin" https://example.com/image.png
 
-*Required Parameters:*
-• *name* \\- Token name \\(e\\.g\\., "MyMeme"\\)\n• *symbol* \\- Token symbol \\(e\\.g\\., "MM"\\)\n• *description* \\- Token description\n• *image_url* \\- Token image URL
+Required Parameters:
+• name - Token name (e.g., "MyMeme")
+• symbol - Token symbol (e.g., "MM")
+• description - Token description
+• image_url - Token image URL
 
-*Optional Parameters:*
-• *telegram_link* \\- Telegram group link
-• *twitter_link* \\- Twitter profile link
+Optional Parameters:
+• telegram_link - Telegram group link
+• twitter_link - Twitter profile link
 
-*Features:*
+Features:
 • Instant token deployment
 • Custom metadata support
 • Professional fee handling
 • Secure transaction processing
 
-*Enter token details:*`;
+Enter token details:`;
 
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
@@ -436,7 +438,6 @@ Your private key is encrypted and stored securely\\.`;
       };
 
       await ctx.reply(createTokenMessage, {
-        parse_mode: 'MarkdownV2',
         reply_markup: keyboard
       });
       return;
@@ -469,9 +470,9 @@ Your private key is encrypted and stored securely\\.`;
         name: name,
         symbol: symbol,
         description: description,
-        imageUrl: imageUrl,
-        telegramLink: telegramLink || '',
-        twitterLink: twitterLink || ''
+        image_url: imageUrl,
+        telegram_link: telegramLink || '',
+        twitter_link: twitterLink || ''
       };
 
       // TODO: Integrate with Rust API for actual token creation
@@ -906,38 +907,38 @@ Only these commands work:
         name: tokenName,
         symbol: tokenName.substring(0, 3).toUpperCase(),
         description: `${tokenName} token created via Pump Swap Bot`,
-        imageUrl: 'https://example.com/default.png',
-        telegramLink: '',
-        twitterLink: ''
+        image_url: 'https://example.com/default.png',
+        telegram_link: 'https://t.me/pumpswapbot',
+        twitter_link: 'https://twitter.com/pumpswapbot'
       };
 
       // Call Rust API for token creation
       try {
         const response = await this.rustApiClient.createToken({
           metadata,
-          userId: user.id,
-          walletId: activeWallet.id,
-          privateKey: bs58.encode(this.walletManager.getKeypairFromWallet(activeWallet).secretKey)
+          user_id: user.id,
+          wallet_id: activeWallet.id,
+          private_key: bs58.encode(this.walletManager.getKeypairFromWallet(activeWallet).secretKey)
         });
 
         const successMessage = `
-✅ *Token Created Successfully*
+✅ Token Created Successfully
 
-*Name:* ${metadata.name}
-*Symbol:* ${metadata.symbol}
-*Description:* ${metadata.description}
+Name: ${metadata.name}
+Symbol: ${metadata.symbol}
+Description: ${metadata.description}
 
-*🔗 Token Address:* \`${response.tokenAddress}\`
-*📝 Transaction ID:* \`${response.transactionId}\`
+🔗 Token Address: \`${response.token_address}\`
+📝 Transaction ID: \`${response.transaction_id}\`
 
-*💡 Next Steps:*
-• Use \`/buy ${response.tokenAddress} 0\\.1 ${activeWallet.name}\` to buy tokens
-• Use \`/sell ${response.tokenAddress} 1000 ${activeWallet.name}\` to sell tokens
+💡 Next Steps:
+• Use /buy ${response.token_address} 0.1 ${activeWallet.name} to buy tokens
+• Use /sell ${response.token_address} 1000 ${activeWallet.name} to sell tokens
 • Share your token with the community
 
-*🎯 Trading Commands:*
-• \`/buy ${response.tokenAddress} 0\\.1 ${activeWallet.name}\`
-• \`/sell ${response.tokenAddress} 1000 ${activeWallet.name}\``;
+🎯 Trading Commands:
+• /buy ${response.token_address} 0.1 ${activeWallet.name}
+• /sell ${response.token_address} 1000 ${activeWallet.name}`;
 
         const keyboard: InlineKeyboardMarkup = {
           inline_keyboard: [
@@ -953,15 +954,12 @@ Only these commands work:
         };
 
         await ctx.reply(successMessage, {
-          parse_mode: 'MarkdownV2',
           reply_markup: keyboard
         });
 
       } catch (apiError) {
         console.error('API Error creating token:', apiError);
-        await ctx.reply('❌ *Failed to create token*\n\nAPI Error: ' + (apiError as Error).message, {
-          parse_mode: 'MarkdownV2'
-        });
+        await ctx.reply('❌ Failed to create token\n\nAPI Error: ' + (apiError as Error).message);
       }
 
       // Clear session
@@ -969,9 +967,7 @@ Only these commands work:
 
     } catch (error) {
       console.error('Error creating token:', error);
-      await ctx.reply('❌ *Failed to create token*\n\nPlease try again later', {
-        parse_mode: 'MarkdownV2'
-      });
+      await ctx.reply('❌ Failed to create token\n\nPlease try again later');
     }
   }
 

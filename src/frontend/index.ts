@@ -6,18 +6,35 @@ import { CallbackHandler } from './bot/callback-handler';
 import { RustApiClient } from './utils/rust-api-client';
 // import { DatabaseManager } from './database/database-manager';
 import { BotConfig } from './types';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Load configuration from config.json
+function loadConfig(): BotConfig {
+  try {
+    const configPath = path.join(process.cwd(), 'config', 'config.json');
+    const configContent = fs.readFileSync(configPath, 'utf8');
+    const config = JSON.parse(configContent);
+    
+    return {
+      telegramToken: config.telegram_token,
+      solanaRpcUrl: config.solana_rpc_url,
+      jitoBundleUrl: config.jito_bundle_url,
+      pumpFunProgramId: config.pump_fun_program_id,
+      feeAddress: config.fee_address,
+      feePercentage: config.fee_percentage,
+      minSolAmount: config.min_sol_amount,
+      jitoTipAmount: config.jito_tip_amount,
+      encryptionKey: config.encryption_key, // Added encryption_key to config
+    };
+  } catch (error) {
+    console.error('Failed to load config.json:', error);
+    process.exit(1);
+  }
+}
 
 // Load configuration
-const config: BotConfig = {
-  telegramToken: process.env.TELEGRAM_TOKEN || '',
-  solanaRpcUrl: process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com',
-  jitoBundleUrl: process.env.JITO_BUNDLE_URL || 'https://mainnet-beta.api.jito.wtf/api/v1/bundles',
-  pumpFunProgramId: process.env.PUMP_FUN_PROGRAM_ID || '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P',
-  feeAddress: process.env.FEE_ADDRESS || 'CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM',
-  feePercentage: parseFloat(process.env.FEE_PERCENTAGE || '0.008'),
-  minSolAmount: parseFloat(process.env.MIN_SOL_AMOUNT || '0.02'),
-  jitoTipAmount: parseFloat(process.env.JITO_TIP_AMOUNT || '0.00001'),
-};
+const config: BotConfig = loadConfig();
 
 // Initialize components
 const rustApiClient = new RustApiClient();
@@ -26,7 +43,7 @@ const rustApiClient = new RustApiClient();
 //   backupInterval: 24 * 60 * 60 * 1000, // 24 hours
 // });
 const walletManager = new WalletManager(
-  process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production',
+  config.encryptionKey || 'default-encryption-key-change-in-production',
   rustApiClient,
   config.solanaRpcUrl
 );

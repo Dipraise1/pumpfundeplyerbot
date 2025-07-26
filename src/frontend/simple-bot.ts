@@ -1,12 +1,28 @@
 import { Telegraf, Markup } from 'telegraf';
 import * as dotenv from 'dotenv';
 import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Load environment variables
 dotenv.config();
 
+// Load configuration from config.json
+function loadConfig() {
+  try {
+    const configPath = path.join(process.cwd(), 'config', 'config.json');
+    const configContent = fs.readFileSync(configPath, 'utf8');
+    return JSON.parse(configContent);
+  } catch (error) {
+    console.error('Failed to load config.json:', error);
+    process.exit(1);
+  }
+}
+
+const config = loadConfig();
+
 // Bot configuration
-const bot = new Telegraf('7637927438:AAEYeGS0IowXaViWpD-1ruqJWYCHaIfYSdY');
+const bot = new Telegraf(config.telegram_token);
 
 // API client
 const apiClient = axios.create({
@@ -392,9 +408,9 @@ bot.action('deploy_token', async (ctx) => {
         name: session.projectData.tokenName,
         symbol: session.projectData.tokenSymbol,
         description: session.projectData.tokenDescription,
-        imageUrl: session.projectData.tokenImage,
-        telegramLink: null,
-        twitterLink: null
+        image_url: session.projectData.tokenImage,
+        telegram_link: null,
+        twitter_link: null
       },
       user_id: userId,
       wallet_id: 'default'

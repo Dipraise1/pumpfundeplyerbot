@@ -26,18 +26,19 @@
     "url": "https://github.com/pump-swap-bot/pump-swap-bot.git"
   },
   "dependencies": {
-    "telegraf": "^4.15.6",
-    "@solana/web3.js": "^1.87.6",
     "@solana/spl-token": "^0.3.9",
+    "@solana/web3.js": "^1.87.6",
     "axios": "^1.6.2",
-    "crypto": "^1.0.1",
     "bs58": "^5.0.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.2.1",
+    "telegraf": "^4.15.6",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.4",
     "@types/node": "^20.10.0",
     "@types/uuid": "^9.0.7",
-    "@types/bs58": "^4.0.4",
     "typescript": "^5.3.2"
   },
   "engines": {

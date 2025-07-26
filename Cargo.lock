@@ -3045,6 +3045,7 @@ dependencies = [
  "anyhow",
  "base64 0.21.7",
  "bincode",
+ "borsh 1.5.7",
  "bs58 0.5.1",
  "clap 4.5.41",
  "env_logger 0.10.2",
@@ -3057,6 +3058,7 @@ dependencies = [
  "spl-associated-token-account",
  "spl-token",
  "tokio",
+ "url",
  "uuid",
 ]
 

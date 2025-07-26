@@ -41,16 +41,16 @@ export interface TokenMetadata {
   name: string;
   symbol: string;
   description: string;
-  imageUrl: string;
-  telegramLink?: string;
-  twitterLink?: string;
+  image_url: string;
+  telegram_link?: string;
+  twitter_link?: string;
 }
 
 export interface TokenCreationRequest {
   metadata: TokenMetadata;
-  userId: number;
-  walletId: string;
-  privateKey: string; // Add private key for backend
+  user_id: number;
+  wallet_id: string;
+  private_key: string; // Add private key for backend
 }
 
 export interface BuyRequest {
@@ -87,6 +87,7 @@ export interface BotConfig {
   feePercentage: number;
   minSolAmount: number;
   jitoTipAmount: number;
+  encryptionKey?: string;
 }
 
 export interface RustApiResponse {
@@ -96,8 +97,8 @@ export interface RustApiResponse {
 }
 
 export interface CreateTokenResponse {
-  tokenAddress: string;
-  transactionId: string;
+  token_address: string;
+  transaction_id: string;
   metadata: TokenMetadata;
 }
 

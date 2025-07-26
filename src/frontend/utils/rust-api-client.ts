@@ -13,7 +13,7 @@ export class RustApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.RUST_API_URL || 'http://127.0.0.1:8080';
+    this.baseUrl = 'http://127.0.0.1:8080'; // Default backend URL
     this.client = axios.create({
       baseURL: this.baseUrl,
       timeout: 30000,
@@ -28,23 +28,34 @@ export class RustApiClient {
    */
   async createToken(request: TokenCreationRequest): Promise<CreateTokenResponse> {
     try {
+      // Debug log
+      console.log('Sending createToken request:', JSON.stringify(request, null, 2));
       // Transform frontend request to backend format
       const backendRequest = {
         metadata: request.metadata,
-        user_id: request.userId,
-        wallet_id: request.walletId,
-        private_key: request.privateKey
+        user_id: request.user_id,
+        wallet_id: request.wallet_id,
+        private_key: request.private_key
       };
+      
+      console.log('Transformed backend request:', JSON.stringify(backendRequest, null, 2));
       
       const response = await this.client.post<RustApiResponse>('/api/token/create', backendRequest);
       
       if (!response.data.success) {
+        console.error('Backend response error:', response.data);
         throw new Error(response.data.error || 'Failed to create token');
       }
 
       return response.data.data as CreateTokenResponse;
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          message: error.message
+        });
         throw new Error(`API Error: ${error.response?.data?.error || error.message}`);
       }
       throw error;
@@ -56,6 +67,8 @@ export class RustApiClient {
    */
   async buyTokens(request: BuyRequest): Promise<BundleResponse> {
     try {
+      // Debug log
+      console.log('Sending buyTokens request:', JSON.stringify(request, null, 2));
       const response = await this.client.post<RustApiResponse>('/api/bundle/buy', request);
       
       if (!response.data.success) {
@@ -76,6 +89,8 @@ export class RustApiClient {
    */
   async sellTokens(request: SellRequest): Promise<BundleResponse> {
     try {
+      // Debug log
+      console.log('Sending sellTokens request:', JSON.stringify(request, null, 2));
       const response = await this.client.post<RustApiResponse>('/api/bundle/sell', request);
       
       if (!response.data.success) {

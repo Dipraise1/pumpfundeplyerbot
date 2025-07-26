@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use borsh::{BorshSerialize, BorshDeserialize};
 use solana_sdk::pubkey::Pubkey;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
 pub struct TokenMetadata {
     pub name: String,
     pub symbol: String,
@@ -15,7 +16,7 @@ pub struct TokenMetadata {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateTokenRequest {
     pub metadata: TokenMetadata,
-    pub user_id: i32,
+    pub user_id: i64,
     pub wallet_id: String,
     pub private_key: String, // Base58 encoded private key
 }
@@ -25,7 +26,7 @@ pub struct BuyRequest {
     pub tokenAddress: String,
     pub solAmounts: Vec<f64>,
     pub walletIds: Vec<String>,
-    pub userId: i32,
+    pub userId: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,7 +34,7 @@ pub struct SellRequest {
     pub tokenAddress: String,
     pub tokenAmounts: Vec<u64>,
     pub walletIds: Vec<String>,
-    pub userId: i32,
+    pub userId: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,13 +63,13 @@ pub struct PumpFunToken {
     pub creation_time: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
 pub struct BondingCurveData {
     pub token_address: String,
     pub current_price: f64,
     pub total_supply: u64,
     pub sol_reserve: f64,
-    pub token_reserve: u64,
+    pub token_reserve: f64, // Changed from u64 to f64 to match implementation
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -146,6 +147,7 @@ pub struct PumpFunConfig {
     pub program_id: String,
     pub fee_address: String,
     pub creation_fee: f64,
+    pub trading_fee: f64, // Added trading_fee field
     pub fee_percentage: f64,
     pub min_sol_amount: f64,
     pub max_wallets_per_bundle: usize,
@@ -157,6 +159,7 @@ impl Default for PumpFunConfig {
             program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P".to_string(),
             fee_address: "CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM".to_string(),
             creation_fee: 0.05,
+            trading_fee: 0.005, // Added trading_fee
             fee_percentage: 0.008, // 0.8%
             min_sol_amount: 0.02,
             max_wallets_per_bundle: 16,
