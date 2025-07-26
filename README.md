@@ -8,11 +8,14 @@ Pump Swap Bot is a professional Telegram bot that enables users to create tokens
 
 ## ✨ Features
 
-- ✅ **Real Solana RPC Integration** - Live blockchain data
-- ✅ **Pump.Fun Token Creation** - Deploy tokens instantly
-- ✅ **MEV-Protected Trading** - Jito bundle submission
-- ✅ **Multi-Wallet Support** - Secure wallet management
-- ✅ **Professional UI** - Intuitive Telegram interface
+- ✅ **Full Pump.Fun Integration** - Real Solana transactions with proper instruction serialization
+- ✅ **Real Solana RPC Integration** - Live blockchain data and transaction submission
+- ✅ **MEV-Protected Trading** - Jito bundle submission for optimal execution
+- ✅ **Multi-Wallet Support** - Secure wallet management with encryption
+- ✅ **Professional UI** - Intuitive Telegram interface with inline keyboards
+- ✅ **Comprehensive Validation** - Token metadata and transaction validation
+- ✅ **Bonding Curve Calculations** - Real-time price calculations
+- ✅ **Error Handling** - Robust error handling and user feedback
 
 ## 🚀 Quick Start
 
@@ -34,8 +37,12 @@ cargo build --release
 cp config/config.example.json config/config.json
 # Edit config/config.json with your settings
 
-# Start bot
-./start-bot-with-env.sh
+# Start bot (recommended)
+./start-bot.sh
+
+# Or start manually
+cargo run --release &  # Backend
+npm start             # Frontend
 ```
 
 ## 📱 Usage
@@ -51,7 +58,7 @@ cp config/config.example.json config/config.json
 
 ### Interactive Mode
 - Type "MyWallet" - Creates a wallet
-- Type "TestToken" - Creates a token
+- Type "TestToken" - Creates a token with default metadata
 
 ## 🔧 Configuration
 
@@ -75,15 +82,26 @@ Edit `config/config.json`:
 ```
 src/
 ├── backend/          # Rust backend (API server, blockchain integration)
+│   ├── api_server.rs # REST API endpoints
+│   ├── pump_fun.rs   # Pump.Fun integration with real transactions
+│   ├── types.rs      # Data structures with Borsh serialization
+│   └── main.rs       # Backend entry point
 ├── frontend/         # TypeScript frontend (Telegram bot)
+│   ├── bot/          # Bot command and callback handlers
+│   ├── utils/        # API client and utilities
+│   ├── wallet/       # Wallet management
+│   └── index.ts      # Frontend entry point
 └── shared/           # Shared components
 ```
 
 ## 🧪 Testing
 
 ```bash
-# Test API
+# Test API health
 curl http://127.0.0.1:8080/health
+
+# Test token creation (requires real SOL)
+# Use the bot interface to create tokens
 
 # Run integration tests
 node tests/integration/test-real-integration.js
@@ -92,14 +110,35 @@ node tests/integration/test-real-integration.js
 ## 🚀 Development
 
 ```bash
-# Build
+# Build both frontend and backend
 npm run build
 cargo build --release
 
 # Start development
-./start-bot-with-env.sh
+./start-bot.sh
+
+# Or start manually
+cargo run --release &  # Backend on port 8080
+npm start             # Frontend (Telegram bot)
 ```
+
+## 🔧 Recent Updates
+
+### v1.1.0 - Full Pump.Fun Integration
+- ✅ **Real Solana Transactions** - No more mock data
+- ✅ **Borsh Serialization** - Proper instruction data serialization
+- ✅ **Bonding Curve Calculations** - Real-time price calculations
+- ✅ **Comprehensive Validation** - Token metadata and transaction validation
+- ✅ **Centralized Configuration** - All settings in config.json
+- ✅ **Improved Error Handling** - Better user feedback and debugging
+- ✅ **Unit Tests** - Validation and calculation tests
+
+### Technical Improvements
+- **Backend**: Full Pump.Fun client with real blockchain interactions
+- **Frontend**: Fixed validation and type mismatches
+- **Configuration**: Centralized in config.json
+- **Deployment**: Easy start script with health checks
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details. # pumpfundeplyerbot
+MIT License - see [LICENSE](LICENSE) file for details.
