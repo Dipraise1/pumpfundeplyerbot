@@ -152,17 +152,18 @@ The ultimate Telegram bot for deploying meme coins on Pump.Fun and executing MEV
     });
 
     const createTokenMessage = `
-➕ <b>Create New Wallet</b>
+🪙 <b>Create New Token</b>
 
-<b>Enter your wallet name:</b>
+<b>Enter your token name:</b>
 
 <b>Features:</b>
-• Generate new Solana keypair  
-• Secure private key encryption  
-• Automatic balance tracking  
-• Ready for transactions
+• Instant token deployment
+• Custom metadata support
+• Professional fee handling
+• Secure transaction processing
 
-<b>Just type the wallet name below:</b>
+<b>Just type the token name below:</b>
+<i>Example:</i> <code>Pine</code> or <code>MyToken</code>
 `.trim();
 
     await ctx.editMessageText(createTokenMessage, {

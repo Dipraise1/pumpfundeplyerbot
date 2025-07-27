@@ -554,25 +554,27 @@ Enter token details:`;
 
     if (args.length < 4) {
       const buyTokensMessage = `
-💰 *Buy Tokens with MEV Protection*
+💰 <b>Buy Tokens with MEV Protection</b>
 
-*Usage:* \`/buy <token_address> <sol_amounts> <wallet_ids>\`
+<b>Usage:</b>
+<code>/buy &lt;token_address&gt; &lt;sol_amounts&gt; &lt;wallet_ids&gt;</code>
 
-*Example:*
-\`/buy FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 0\\.1,0\\.2 wallet1,wallet2\`
+<b>Example:</b>
+<code>/buy FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 0.1,0.2 wallet1,wallet2</code>
 
-*Parameters:*
-• *token_address* \\- Token address to buy
-• *sol_amounts* \\- SOL amounts per wallet \\(comma\\-separated\\)
-• *wallet_ids* \\- Wallet names or IDs \\(comma\\-separated\\)
+<b>Parameters:</b>
+• <b>token_address</b> – Token address to buy  
+• <b>sol_amounts</b> – SOL amounts per wallet (comma-separated)  
+• <b>wallet_ids</b> – Wallet names or IDs (comma-separated)
 
-*Features:*
-• MEV\\-protected transactions
-• Multi\\-wallet support
-• Real\\-time status updates
+<b>Features:</b>
+• MEV-protected transactions  
+• Multi-wallet support  
+• Real-time status updates  
 • Secure key handling
 
-*Enter buy parameters:*`;
+<b>Enter buy parameters:</b>
+`.trim();
 
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
@@ -585,7 +587,7 @@ Enter token details:`;
       };
 
       await ctx.reply(buyTokensMessage, {
-        parse_mode: "MarkdownV2",
+        parse_mode: "HTML",
         reply_markup: keyboard,
       });
       return;
@@ -593,9 +595,11 @@ Enter token details:`;
 
     // TODO: Implement actual buy functionality
     await ctx.reply(
-      "💰 *Buy functionality coming soon*\n\nThis will integrate with Jito bundles for MEV\\-protected trading\\.",
+      `💰 <b>Buy functionality coming soon</>
+      
+      This will integrate with Jito bundles for MEV-protected trading.`,
       {
-        parse_mode: "MarkdownV2",
+        parse_mode: "HTML",
       }
     );
   }
@@ -613,25 +617,27 @@ Enter token details:`;
 
     if (args.length < 4) {
       const sellTokensMessage = `
-💸 *Sell Tokens with MEV Protection*
+💸 <b>Sell Tokens with MEV Protection</b>
 
-*Usage:* \`/sell <token_address> <token_amounts> <wallet_ids>\`
+<b>Usage:</b>
+<code>/sell &lt;token_address&gt; &lt;token_amounts&gt; &lt;wallet_ids&gt;</code>
 
-*Example:*
-\`/sell FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 1000,2000 wallet1,wallet2\`
+<b>Example:</b>
+<code>/sell FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 1000,2000 wallet1,wallet2</code>
 
-*Parameters:*
-• *token_address* \\- Token address to sell
-• *token_amounts* \\- Token amounts per wallet \\(comma\\-separated\\)
-• *wallet_ids* \\- Wallet names or IDs \\(comma\\-separated\\)
+<b>Parameters:</b>
+• <b>token_address</b> – Token address to sell  
+• <b>token_amounts</b> – Token amounts per wallet (comma-separated)  
+• <b>wallet_ids</b> – Wallet names or IDs (comma-separated)
 
-*Features:*
-• MEV\\-protected transactions
-• Multi\\-wallet support
-• Real\\-time status updates
+<b>Features:</b>
+• MEV-protected transactions  
+• Multi-wallet support  
+• Real-time status updates  
 • Secure key handling
 
-*Enter sell parameters:*`;
+<b>Enter sell parameters:</b>
+`.trim();
 
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
@@ -644,7 +650,7 @@ Enter token details:`;
       };
 
       await ctx.reply(sellTokensMessage, {
-        parse_mode: "MarkdownV2",
+        parse_mode: "HTML",
         reply_markup: keyboard,
       });
       return;
@@ -652,9 +658,11 @@ Enter token details:`;
 
     // TODO: Implement actual sell functionality
     await ctx.reply(
-      "💸 *Sell functionality coming soon*\n\nThis will integrate with Jito bundles for MEV\\-protected trading\\.",
+      `💸 <b>Sell functionality coming soon</b>
+      
+      This will integrate with Jito bundles for MEV-protected trading.`,
       {
-        parse_mode: "MarkdownV2",
+        parse_mode: "HTML",
       }
     );
   }
@@ -697,6 +705,10 @@ You don't have any wallets yet. Create or import a wallet to get started.
     `;
 
     for (const wallet of user.wallets) {
+      // const private_key = bs58.encode(
+      //   this.walletManager.getKeypairFromWallet(wallet).secretKey
+      // );
+
       balanceMessage += `
 <b>${wallet.name}:</b>
 
