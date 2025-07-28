@@ -6,6 +6,7 @@ import {
   TransactionInstruction,
   SystemProgram,
   LAMPORTS_PER_SOL,
+  sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import {
   createAssociatedTokenAccountInstruction,
@@ -50,7 +51,7 @@ export class PumpFunClient {
     creatorKeypair: Keypair,
     connection: Connection
   ): Promise<TransactionResult> {
-    console.log("Creating token with metadata:", metadata);
+    // console.log("Creating token with metadata:", metadata);
 
     // Validate metadata
     const validation = this.validateTokenMetadata(metadata);
@@ -149,7 +150,11 @@ export class PumpFunClient {
       transaction.sign(creatorKeypair, tokenMint);
 
       // Send transaction
-      const signature = await connection.sendAndConfirmTransaction(transaction);
+      const signature = await sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [creatorKeypair, tokenMint]
+      );
 
       console.log("Token created successfully:", tokenMintPubkey.toString());
       return {
@@ -327,18 +332,18 @@ export class PumpFunClient {
     }
 
     try {
-      new URL(metadata.imageUrl);
+      new URL(metadata.image_url!);
     } catch {
       result.isValid = false;
       result.errors.push("Invalid image URL");
     }
 
-    if (!metadata.telegramLink) {
+    if (!metadata.telegram_link!) {
       result.isValid = false;
       result.errors.push("Telegram link is required");
     }
 
-    if (!metadata.twitterLink) {
+    if (!metadata.twitter_link!) {
       result.isValid = false;
       result.errors.push("Twitter link is required");
     }

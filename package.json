@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node dist/frontend/index.js",
     "dev": "tsc && node dist/frontend/index.js",
-    "internal": "tsx watch src/frontend/index.ts",
+    "internal": "concurrently \"tsx watch src/frontend/server/main.ts\" \"tsx watch src/frontend/index.ts\"",
     "test": "node tests/integration/test-real-integration.js"
   },
   "keywords": [
@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@types/bs58": "^4.0.4",
-    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^20.10.0",
     "@types/uuid": "^9.0.7",

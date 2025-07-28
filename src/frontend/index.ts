@@ -8,6 +8,7 @@ import { RustApiClient } from "./utils/rust-api-client";
 import { BotConfig } from "./types";
 import * as fs from "fs";
 import * as path from "path";
+import { TypeApiClient } from "./server/ts-server";
 
 // Load configuration from config.json
 function loadConfig(): BotConfig {
@@ -37,7 +38,7 @@ function loadConfig(): BotConfig {
 const config: BotConfig = loadConfig();
 
 // Initialize components
-const rustApiClient = new RustApiClient();
+const rustApiClient = new TypeApiClient(); //new RustApiClient();
 // const databaseManager = new DatabaseManager({
 //   dataDir: './data',
 //   backupInterval: 24 * 60 * 60 * 1000, // 24 hours

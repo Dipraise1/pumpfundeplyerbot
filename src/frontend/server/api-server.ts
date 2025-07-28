@@ -64,7 +64,7 @@ export class ApiServer {
       let creatorKeypair;
       try {
         creatorKeypair = this.state.pumpFunClient.decodeKeypair(
-          request.privateKey
+          request.private_key!
         );
       } catch (error: any) {
         res.status(400).json({
@@ -76,7 +76,7 @@ export class ApiServer {
       }
 
       // Validate the wallet belongs to the user
-      if (!request.walletId) {
+      if (!request.wallet_id!) {
         res.status(400).json({
           success: false,
           data: null,
@@ -84,7 +84,6 @@ export class ApiServer {
         });
         return;
       }
-
       // Create real Pump.Fun token
       const result = await this.state.pumpFunClient.createToken(
         request.metadata,

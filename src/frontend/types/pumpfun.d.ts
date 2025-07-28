@@ -5,6 +5,9 @@ export interface TokenMetadata {
   imageUrl: string;
   telegramLink?: string;
   twitterLink?: string;
+  image_url?: string;
+  telegram_link?: string;
+  twitter_link?: string;
 }
 
 export interface CreateTokenRequest {
@@ -12,6 +15,8 @@ export interface CreateTokenRequest {
   userId: number;
   walletId: string;
   privateKey: string;
+  private_key?: string;
+  wallet_id?: string;
 }
 
 export interface BuyRequest {
