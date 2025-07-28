@@ -28,7 +28,10 @@ export class ApiServer {
     this.state = {
       pumpFunClient,
       jitoClient,
-      connection: new Connection("https://api.mainnet-beta.solana.com"),
+      // connection: new Connection("https://api.mainnet-beta.solana.com"),
+      connection: new Connection(
+        "https://devnet.helius-rpc.com/?api-key=5f3e108f-d6e0-426f-9307-99a62612616f"
+      ),
     };
 
     this.setupMiddleware();
