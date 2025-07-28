@@ -1,10 +1,11 @@
-import { Context } from 'telegraf';
-import { InlineKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
-import { WalletManager } from '../wallet/wallet-manager';
-import { UserManager } from './user-manager';
-import { RustApiClient } from '../utils/rust-api-client';
-import { BotConfig, User, TokenMetadata, CommandContext } from '../types';
-import * as bs58 from 'bs58';
+import { Context } from "telegraf";
+import { InlineKeyboardMarkup } from "telegraf/typings/core/types/typegram";
+import { WalletManager } from "../wallet/wallet-manager";
+import { UserManager } from "./user-manager";
+import { RustApiClient } from "../utils/rust-api-client";
+import { BotConfig, User, TokenMetadata, CommandContext } from "../types";
+import * as bs58 from "bs58";
+import { escapeMarkdownV2 } from "../utils/formatters";
 
 export class CommandHandler {
   constructor(
@@ -19,64 +20,68 @@ export class CommandHandler {
    */
   async handleStart(ctx: Context, user: User): Promise<void> {
     const welcomeMessage = `
-🎯 *Welcome to Pump Swap Bot*
+🎯 <b>Welcome to Pump Swap Bot</b>
 
-The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing MEV\\-protected transactions\\.
+The ultimate Telegram bot for deploying meme coins on Pump.Fun and executing MEV-protected transactions.
 
-*🚀 Key Features:*
-• 🌕 **Token Creation** \\- Deploy new meme coins instantly
-• 💰 **Bundled Trading** \\- MEV\\-protected buy/sell transactions  
-• 🔒 **Wallet Management** \\- Secure multi\\-wallet support
-• 📊 **Professional UI** \\- Intuitive step\\-by\\-step flows
-• ⚡ **Real\\-time** \\- Instant transaction status updates
+<b>🚀 Key Features:</b>
+• 🌕 <b>Token Creation</b> – Deploy new meme coins instantly
+• 💰 <b>Bundled Trading</b> – MEV-protected buy/sell transactions
+• 🔒 <b>Wallet Management</b> – Secure multi-wallet support
+• 📊 <b>Professional UI</b> – Intuitive step-by-step flows
+• ⚡ <b>Real-time</b> – Instant transaction status updates
 
-*💎 Premium Features:*
+<b>💎 Premium Features:</b>
 • Jito MEV protection
 • Atomic transaction bundling
 • Professional fee management
 • Advanced error handling
 
-*Ready to start? Select an option below:*`;
+<b>Ready to start? Select an option below:</b>
+`;
 
     const keyboard: InlineKeyboardMarkup = {
       inline_keyboard: [
         [
-          { text: '⚪ Create Token', callback_data: 'create_token' },
-          { text: '💰 Buy Tokens', callback_data: 'buy_tokens' },
-          { text: '💸 Sell Tokens', callback_data: 'sell_tokens' }
+          { text: "⚪ Create Token", callback_data: "create_token" },
+          { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
+          { text: "💸 Sell Tokens", callback_data: "sell_tokens" },
         ],
         [
-          { text: '👛 Wallet Management', callback_data: 'manage_wallets' },
-          { text: '📊 Project Status', callback_data: 'check_balance' },
-          { text: '❓ Help', callback_data: 'help_info' }
+          { text: "👛 Wallet Management", callback_data: "manage_wallets" },
+          { text: "📊 Project Status", callback_data: "check_balance" },
+          { text: "❓ Help", callback_data: "help_info" },
         ],
         [
-          { text: '📈 Market Stats', callback_data: 'market_stats' },
-          { text: '🎯 Quick Trade', callback_data: 'quick_trade' },
-          { text: '⚙️ Settings', callback_data: 'settings' }
+          { text: "📈 Market Stats", callback_data: "market_stats" },
+          { text: "🎯 Quick Trade", callback_data: "quick_trade" },
+          { text: "⚙️ Settings", callback_data: "settings" },
         ],
         [
-          { text: '🌐 Web Dashboard', web_app: { url: 'https://pumpswap.fun' } },
-          { text: '📱 Download App', callback_data: 'download_app' }
-        ]
-      ]
+          {
+            text: "🌐 Web Dashboard",
+            web_app: { url: "https://pumpswap.fun" },
+          },
+          { text: "📱 Download App", callback_data: "download_app" },
+        ],
+      ],
     };
 
     // Set up persistent reply keyboard for quick access
     const replyKeyboard = {
       keyboard: [
-        ['🪙 Create Token', '💰 Buy', '💸 Sell'],
-        ['👛 Wallets', '📊 Balance', '❓ Help'],
-        ['📈 Stats', '⚙️ Settings', '🌐 Web']
+        ["🪙 Create Token", "💰 Buy", "💸 Sell"],
+        ["👛 Wallets", "📊 Balance", "❓ Help"],
+        ["📈 Stats", "⚙️ Settings", "🌐 Web"],
       ],
       resize_keyboard: true,
       one_time_keyboard: false,
-      selective: true
+      selective: true,
     };
 
     await ctx.reply(welcomeMessage, {
-      parse_mode: 'MarkdownV2',
-      reply_markup: keyboard
+      parse_mode: "HTML",
+      reply_markup: keyboard,
     });
   }
 
@@ -131,22 +136,20 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
     const keyboard: InlineKeyboardMarkup = {
       inline_keyboard: [
         [
-          { text: '🪙 Create Token', callback_data: 'create_token' },
-          { text: '💰 Buy Tokens', callback_data: 'buy_tokens' }
+          { text: "🪙 Create Token", callback_data: "create_token" },
+          { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
         ],
         [
-          { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-          { text: '📊 Check Balance', callback_data: 'check_balance' }
+          { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+          { text: "📊 Check Balance", callback_data: "check_balance" },
         ],
-        [
-          { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-        ]
-      ]
+        [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+      ],
     };
 
     await ctx.reply(helpMessage, {
-      parse_mode: 'MarkdownV2',
-      reply_markup: keyboard
+      parse_mode: "MarkdownV2",
+      reply_markup: keyboard,
     });
   }
 
@@ -170,22 +173,20 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
     const keyboard: InlineKeyboardMarkup = {
       inline_keyboard: [
         [
-          { text: '➕ Create Wallet', callback_data: 'create_wallet' },
-          { text: '📥 Import Wallet', callback_data: 'import_wallet' }
+          { text: "➕ Create Wallet", callback_data: "create_wallet" },
+          { text: "📥 Import Wallet", callback_data: "import_wallet" },
         ],
         [
-          { text: '📋 List Wallets', callback_data: 'list_wallets' },
-          { text: '💰 Check Balance', callback_data: 'check_balance' }
+          { text: "📋 List Wallets", callback_data: "list_wallets" },
+          { text: "💰 Check Balance", callback_data: "check_balance" },
         ],
-        [
-          { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-        ]
-      ]
+        [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+      ],
     };
 
     await ctx.reply(walletMessage, {
-      parse_mode: 'MarkdownV2',
-      reply_markup: keyboard
+      parse_mode: "MarkdownV2",
+      reply_markup: keyboard,
     });
   }
 
@@ -194,12 +195,12 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
    */
   async handleCreateWallet(ctx: Context, user: User): Promise<void> {
     const message = ctx.message;
-    if (!message || !('text' in message)) {
-      await ctx.reply('❌ Invalid message type');
+    if (!message || !("text" in message)) {
+      await ctx.reply("❌ Invalid message type");
       return;
     }
-    const args = message.text?.split(' ') || [];
-    
+    const args = message.text?.split(" ") || [];
+
     // If user provided wallet name in command
     if (args.length >= 2) {
       const walletName = args[1];
@@ -212,9 +213,9 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
     // If no wallet name provided, start interactive session
     await this.userManager.setUserSession(user.id, {
       userId: user.id,
-      state: 'waiting_for_wallet_name',
+      state: "waiting_for_wallet_name",
       data: {},
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     const createWalletMessage = `
@@ -231,18 +232,22 @@ The ultimate Telegram bot for deploying meme coins on Pump\\.Fun and executing M
 *Just type the wallet name below:*`;
 
     await ctx.reply(createWalletMessage, {
-      parse_mode: 'MarkdownV2'
+      parse_mode: "MarkdownV2",
     });
   }
 
   /**
    * Create wallet with provided name
    */
-  private async createWalletWithName(ctx: Context, user: User, walletName: string): Promise<void> {
+  private async createWalletWithName(
+    ctx: Context,
+    user: User,
+    walletName: string
+  ): Promise<void> {
     try {
       // Show processing message
-      await ctx.reply('⏳ *Creating wallet\\.\\.\\.*', {
-        parse_mode: 'MarkdownV2'
+      await ctx.reply("⏳ *Creating wallet\\.\\.\\.*", {
+        parse_mode: "MarkdownV2",
       });
 
       const wallet = await this.walletManager.createWallet(user.id, walletName);
@@ -267,30 +272,32 @@ Your private key is encrypted and stored securely\\. Never share your private ke
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '💰 Check Balance', callback_data: 'check_balance' },
-            { text: '🪙 Create Token', callback_data: 'create_token' }
+            { text: "💰 Check Balance", callback_data: "check_balance" },
+            { text: "🪙 Create Token", callback_data: "create_token" },
           ],
           [
-            { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+            { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+            { text: "🔙 Back to Menu", callback_data: "main_menu" },
+          ],
+        ],
       };
 
       await ctx.reply(successMessage, {
-        parse_mode: 'MarkdownV2',
-        reply_markup: keyboard
+        parse_mode: "MarkdownV2",
+        reply_markup: keyboard,
       });
 
       // Clear session
       await this.userManager.clearUserSession(user.id);
-
     } catch (error) {
-      console.error('Error creating wallet:', error);
+      console.error("Error creating wallet:", error);
       // Use a simple error message to avoid Markdown parsing issues
-      await ctx.reply('❌ *Failed to create wallet*\n\nPlease try again later', {
-        parse_mode: 'MarkdownV2'
-      });
+      await ctx.reply(
+        "❌ *Failed to create wallet*\n\nPlease try again later",
+        {
+          parse_mode: "MarkdownV2",
+        }
+      );
     }
   }
 
@@ -299,12 +306,12 @@ Your private key is encrypted and stored securely\\. Never share your private ke
    */
   async handleImportWallet(ctx: Context, user: User): Promise<void> {
     const message = ctx.message;
-    if (!message || !('text' in message)) {
-      await ctx.reply('❌ Invalid message type');
+    if (!message || !("text" in message)) {
+      await ctx.reply("❌ Invalid message type");
       return;
     }
-    const args = message.text?.split(' ') || [];
-    
+    const args = message.text?.split(" ") || [];
+
     if (args.length < 3) {
       const importWalletMessage = `
 📥 *Import Existing Wallet*
@@ -321,38 +328,44 @@ Your private key is encrypted and stored securely\\. Never share your private ke
 *Enter wallet name and private key:*`;
 
       await ctx.reply(importWalletMessage, {
-        parse_mode: 'MarkdownV2'
+        parse_mode: "MarkdownV2",
       });
       return;
     }
 
     const walletName = args[1];
     const privateKey = args[2];
-    
     // Validate parameters
     if (!walletName || !privateKey) {
-      await ctx.reply('❌ *Missing required parameters*\n\nPlease provide wallet name and private key', {
-        parse_mode: 'MarkdownV2'
-      });
+      await ctx.reply(
+        "❌ *Missing required parameters*\n\nPlease provide wallet name and private key",
+        {
+          parse_mode: "MarkdownV2",
+        }
+      );
       return;
     }
-    
+
     try {
       // Show processing message
-      await ctx.reply('⏳ *Importing wallet...*', {
-        parse_mode: 'MarkdownV2'
+      await ctx.reply("⏳ *Importing wallet\\.\\.\\.*", {
+        parse_mode: "MarkdownV2",
       });
 
-      const wallet = await this.walletManager.importWallet(user.id, walletName, privateKey);
+      const wallet = await this.walletManager.importWallet(
+        user.id,
+        walletName,
+        privateKey
+      );
       await this.userManager.addWalletToUser(user.id, wallet);
 
       const successMessage = `
 ✅ *Wallet Imported Successfully*
 
-*Name:* ${wallet.name}
-*Public Key:* \`${wallet.publicKey}\`
+*Name:* ${escapeMarkdownV2(wallet.name)}
+*Public Key:* \`${escapeMarkdownV2(wallet.publicKey)}\`
 *Status:* Active
-*Imported:* ${wallet.createdAt.toLocaleDateString()}
+*Imported:* ${escapeMarkdownV2(wallet.createdAt.toLocaleDateString())}
 
 *Next Steps:*
 • Check wallet balance
@@ -365,26 +378,28 @@ Your private key is encrypted and stored securely\\.`;
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '💰 Check Balance', callback_data: 'check_balance' },
-            { text: '💰 Buy Tokens', callback_data: 'buy_tokens' }
+            { text: "💰 Check Balance", callback_data: "check_balance" },
+            { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
           ],
           [
-            { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+            { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+            { text: "🔙 Back to Menu", callback_data: "main_menu" },
+          ],
+        ],
       };
 
       await ctx.reply(successMessage, {
-        parse_mode: 'MarkdownV2',
-        reply_markup: keyboard
+        parse_mode: "MarkdownV2",
+        reply_markup: keyboard,
       });
-
     } catch (error) {
-      const errorMessage = (error as Error).message.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      await ctx.reply('❌ *Failed to import wallet*\n\nError: ' + errorMessage, {
-        parse_mode: 'MarkdownV2'
-      });
+      const errorMessage = escapeMarkdownV2((error as Error).message);
+      await ctx.reply(
+        "❌ *Failed to import wallet*\n\nError: " + errorMessage,
+        {
+          parse_mode: "MarkdownV2",
+        }
+      );
     }
   }
 
@@ -393,12 +408,12 @@ Your private key is encrypted and stored securely\\.`;
    */
   async handleCreate(ctx: Context, user: User): Promise<void> {
     const message = ctx.message;
-    if (!message || !('text' in message)) {
-      await ctx.reply('❌ Invalid message type');
+    if (!message || !("text" in message)) {
+      await ctx.reply("❌ Invalid message type");
       return;
     }
-    const args = message.text?.split(' ') || [];
-    
+    const args = message.text?.split(" ") || [];
+
     if (args.length < 5) {
       const createTokenMessage = `🪙 Create New Token
 
@@ -428,17 +443,15 @@ Enter token details:`;
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-            { text: '📋 Help', callback_data: 'help_info' }
+            { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+            { text: "📋 Help", callback_data: "help_info" },
           ],
-          [
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+          [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+        ],
       };
 
       await ctx.reply(createTokenMessage, {
-        reply_markup: keyboard
+        reply_markup: keyboard,
       });
       return;
     }
@@ -453,17 +466,23 @@ Enter token details:`;
 
     // Validate required parameters
     if (!name || !symbol || !description || !imageUrl) {
-      await ctx.reply('❌ *Missing required parameters*\n\nPlease provide name, symbol, description, and image URL', {
-        parse_mode: 'MarkdownV2'
-      });
+      await ctx.reply(
+        "❌ *Missing required parameters*\n\nPlease provide name, symbol, description, and image URL",
+        {
+          parse_mode: "MarkdownV2",
+        }
+      );
       return;
     }
 
     try {
       // Show processing message
-      await ctx.reply('⏳ *Creating token...*\n\nPlease wait while we deploy your token on Pump\\.Fun', {
-        parse_mode: 'MarkdownV2'
-      });
+      await ctx.reply(
+        "⏳ *Creating token...*\n\nPlease wait while we deploy your token on Pump\\.Fun",
+        {
+          parse_mode: "MarkdownV2",
+        }
+      );
 
       // Create token metadata
       const metadata: TokenMetadata = {
@@ -471,8 +490,8 @@ Enter token details:`;
         symbol: symbol,
         description: description,
         image_url: imageUrl,
-        telegram_link: telegramLink || '',
-        twitter_link: twitterLink || ''
+        telegram_link: telegramLink || "",
+        twitter_link: twitterLink || "",
       };
 
       // TODO: Integrate with Rust API for actual token creation
@@ -498,25 +517,27 @@ Enter token details:`;
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '💰 Buy Tokens', callback_data: 'buy_tokens' },
-            { text: '💸 Sell Tokens', callback_data: 'sell_tokens' }
+            { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
+            { text: "💸 Sell Tokens", callback_data: "sell_tokens" },
           ],
           [
-            { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+            { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+            { text: "🔙 Back to Menu", callback_data: "main_menu" },
+          ],
+        ],
       };
 
       await ctx.reply(successMessage, {
-        parse_mode: 'MarkdownV2',
-        reply_markup: keyboard
+        parse_mode: "MarkdownV2",
+        reply_markup: keyboard,
       });
-
     } catch (error) {
-      await ctx.reply('❌ *Failed to create token*\n\nError: ' + (error as Error).message, {
-        parse_mode: 'MarkdownV2'
-      });
+      await ctx.reply(
+        "❌ *Failed to create token*\n\nError: " + (error as Error).message,
+        {
+          parse_mode: "MarkdownV2",
+        }
+      );
     }
   }
 
@@ -525,57 +546,62 @@ Enter token details:`;
    */
   async handleBuy(ctx: Context, user: User): Promise<void> {
     const message = ctx.message;
-    if (!message || !('text' in message)) {
-      await ctx.reply('❌ Invalid message type');
+    if (!message || !("text" in message)) {
+      await ctx.reply("❌ Invalid message type");
       return;
     }
-    const args = message.text?.split(' ') || [];
-    
+    const args = message.text?.split(" ") || [];
+
     if (args.length < 4) {
       const buyTokensMessage = `
-💰 *Buy Tokens with MEV Protection*
+💰 <b>Buy Tokens with MEV Protection</b>
 
-*Usage:* \`/buy <token_address> <sol_amounts> <wallet_ids>\`
+<b>Usage:</b>
+<code>/buy &lt;token_address&gt; &lt;sol_amounts&gt; &lt;wallet_ids&gt;</code>
 
-*Example:*
-\`/buy FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 0\\.1,0\\.2 wallet1,wallet2\`
+<b>Example:</b>
+<code>/buy FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 0.1,0.2 wallet1,wallet2</code>
 
-*Parameters:*
-• *token_address* \\- Token address to buy
-• *sol_amounts* \\- SOL amounts per wallet \\(comma\\-separated\\)
-• *wallet_ids* \\- Wallet names or IDs \\(comma\\-separated\\)
+<b>Parameters:</b>
+• <b>token_address</b> – Token address to buy  
+• <b>sol_amounts</b> – SOL amounts per wallet (comma-separated)  
+• <b>wallet_ids</b> – Wallet names or IDs (comma-separated)
 
-*Features:*
-• MEV\\-protected transactions
-• Multi\\-wallet support
-• Real\\-time status updates
+<b>Features:</b>
+• MEV-protected transactions  
+• Multi-wallet support  
+• Real-time status updates  
 • Secure key handling
 
-*Enter buy parameters:*`;
+<b>Enter buy parameters:</b>
+`.trim();
 
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-            { text: '💰 Check Balance', callback_data: 'check_balance' }
+            { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+            { text: "💰 Check Balance", callback_data: "check_balance" },
           ],
-          [
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+          [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+        ],
       };
 
       await ctx.reply(buyTokensMessage, {
-        parse_mode: 'MarkdownV2',
-        reply_markup: keyboard
+        parse_mode: "HTML",
+        reply_markup: keyboard,
       });
       return;
     }
 
     // TODO: Implement actual buy functionality
-    await ctx.reply('💰 *Buy functionality coming soon*\n\nThis will integrate with Jito bundles for MEV\\-protected trading\\.', {
-      parse_mode: 'MarkdownV2'
-    });
+    await ctx.reply(
+      `💰 <b>Buy functionality coming soon</>
+      
+      This will integrate with Jito bundles for MEV-protected trading.`,
+      {
+        parse_mode: "HTML",
+      }
+    );
   }
 
   /**
@@ -583,57 +609,62 @@ Enter token details:`;
    */
   async handleSell(ctx: Context, user: User): Promise<void> {
     const message = ctx.message;
-    if (!message || !('text' in message)) {
-      await ctx.reply('❌ Invalid message type');
+    if (!message || !("text" in message)) {
+      await ctx.reply("❌ Invalid message type");
       return;
     }
-    const args = message.text?.split(' ') || [];
-    
+    const args = message.text?.split(" ") || [];
+
     if (args.length < 4) {
       const sellTokensMessage = `
-💸 *Sell Tokens with MEV Protection*
+💸 <b>Sell Tokens with MEV Protection</b>
 
-*Usage:* \`/sell <token_address> <token_amounts> <wallet_ids>\`
+<b>Usage:</b>
+<code>/sell &lt;token_address&gt; &lt;token_amounts&gt; &lt;wallet_ids&gt;</code>
 
-*Example:*
-\`/sell FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 1000,2000 wallet1,wallet2\`
+<b>Example:</b>
+<code>/sell FFYRn4ayuJtgV47w2WjMC1YL27WMFy2y5uTwyv1cpump 1000,2000 wallet1,wallet2</code>
 
-*Parameters:*
-• *token_address* \\- Token address to sell
-• *token_amounts* \\- Token amounts per wallet \\(comma\\-separated\\)
-• *wallet_ids* \\- Wallet names or IDs \\(comma\\-separated\\)
+<b>Parameters:</b>
+• <b>token_address</b> – Token address to sell  
+• <b>token_amounts</b> – Token amounts per wallet (comma-separated)  
+• <b>wallet_ids</b> – Wallet names or IDs (comma-separated)
 
-*Features:*
-• MEV\\-protected transactions
-• Multi\\-wallet support
-• Real\\-time status updates
+<b>Features:</b>
+• MEV-protected transactions  
+• Multi-wallet support  
+• Real-time status updates  
 • Secure key handling
 
-*Enter sell parameters:*`;
+<b>Enter sell parameters:</b>
+`.trim();
 
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-            { text: '💰 Check Balance', callback_data: 'check_balance' }
+            { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+            { text: "💰 Check Balance", callback_data: "check_balance" },
           ],
-          [
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+          [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+        ],
       };
 
       await ctx.reply(sellTokensMessage, {
-        parse_mode: 'MarkdownV2',
-        reply_markup: keyboard
+        parse_mode: "HTML",
+        reply_markup: keyboard,
       });
       return;
     }
 
     // TODO: Implement actual sell functionality
-    await ctx.reply('💸 *Sell functionality coming soon*\n\nThis will integrate with Jito bundles for MEV\\-protected trading\\.', {
-      parse_mode: 'MarkdownV2'
-    });
+    await ctx.reply(
+      `💸 <b>Sell functionality coming soon</b>
+      
+      This will integrate with Jito bundles for MEV-protected trading.`,
+      {
+        parse_mode: "HTML",
+      }
+    );
   }
 
   /**
@@ -642,71 +673,81 @@ Enter token details:`;
   async handleBalance(ctx: Context, user: User): Promise<void> {
     if (user.wallets.length === 0) {
       const noWalletsMessage = `
-💰 *No Wallets Found*
+💰 <b>No Wallets Found</b>
 
-You don't have any wallets yet\\. Create or import a wallet to get started
+You don't have any wallets yet. Create or import a wallet to get started.
 
-*Quick Actions:*`;
+<b>Quick Actions:</b>
+`;
 
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '➕ Create Wallet', callback_data: 'create_wallet' },
-            { text: '📥 Import Wallet', callback_data: 'import_wallet' }
+            { text: "➕ Create Wallet", callback_data: "create_wallet" },
+            { text: "📥 Import Wallet", callback_data: "import_wallet" },
           ],
-          [
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+          [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+        ],
       };
 
       await ctx.reply(noWalletsMessage, {
-        parse_mode: 'MarkdownV2',
-        reply_markup: keyboard
+        parse_mode: "HTML",
+        reply_markup: keyboard,
       });
       return;
     }
 
-    let balanceMessage = `
-💰 *Wallet Balances*
-
-*Total Wallets:* ${user.wallets.length}
-
-`;
+    let balanceMessage = `<b>💰 Wallet Balances</b>
+    
+    `;
+    balanceMessage += `<b>Total Wallets:</b> ${user.wallets.length}
+    
+    `;
 
     for (const wallet of user.wallets) {
+      // const private_key = bs58.encode(
+      //   this.walletManager.getKeypairFromWallet(wallet).secretKey
+      // );
+
       balanceMessage += `
-*${wallet.name}:*
-• Address: \`${wallet.publicKey}\`
+<b>${wallet.name}:</b>
+
+• Address: <code>${wallet.publicKey}</code>
+
 • Balance: ${wallet.balance} SOL
-• Status: ${wallet.isActive ? 'Active' : 'Inactive'}
+
+• Status: ${wallet.isActive ? "Active" : "Inactive"}
+
 • Last Used: ${wallet.lastUsed.toLocaleDateString()}
 
 `;
     }
 
     balanceMessage += `
-*💡 Tips:*
+<b>💡 Tips:</b>
+
 • Fund your wallets with SOL for trading
+
 • Use multiple wallets for better MEV protection
+
 • Keep some SOL for transaction fees`;
 
     const keyboard: InlineKeyboardMarkup = {
       inline_keyboard: [
         [
-          { text: '🪙 Create Token', callback_data: 'create_token' },
-          { text: '💰 Buy Tokens', callback_data: 'buy_tokens' }
+          { text: "🪙 Create Token", callback_data: "create_token" },
+          { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
         ],
         [
-          { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-          { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-        ]
-      ]
+          { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+          { text: "🔙 Back to Menu", callback_data: "main_menu" },
+        ],
+      ],
     };
 
     await ctx.reply(balanceMessage, {
-      parse_mode: 'MarkdownV2',
-      reply_markup: keyboard
+      parse_mode: "HTML",
+      reply_markup: keyboard,
     });
   }
 
@@ -715,46 +756,45 @@ You don't have any wallets yet\\. Create or import a wallet to get started
    */
   async handleStatus(ctx: Context, user: User): Promise<void> {
     const statusMessage = `
-📊 *Bot Status*
+📊 <b>Bot Status</b>
 
-*User Info:*
+<b>User Info:</b>
 • ID: ${user.id}
-• Username: ${user.username || 'N/A'}
+• Username: ${user.username || "N/A"}
 • Wallets: ${user.wallets.length}
 • Member Since: ${user.createdAt.toLocaleDateString()}
 
-*Bot Features:*
-• ✅ Token Creation
-• ✅ Wallet Management
-• 🔄 Buy/Sell Trading \\(Coming Soon\\)
-• 🔄 Jito Bundle Integration \\(Coming Soon\\)
+<b>Bot Features:</b>
+• ✅ Token Creation  
+• ✅ Wallet Management  
+• 🔄 Buy/Sell Trading (Coming Soon)  
+• 🔄 Jito Bundle Integration (Coming Soon)  
 
-*System Status:*
-• Bot: Online
-• Rust API: ${await this.rustApiClient.healthCheck() ? 'Online' : 'Offline'}
-• Solana RPC: Connected
+<b>System Status:</b>
+• Bot: Online  
+• Rust API: ${(await this.rustApiClient.healthCheck()) ? "Online" : "Offline"}  
+• Solana RPC: Connected  
 
-*Quick Actions:*`;
+<b>Quick Actions:</b>
+`;
 
     const keyboard: InlineKeyboardMarkup = {
       inline_keyboard: [
         [
-          { text: '🪙 Create Token', callback_data: 'create_token' },
-          { text: '👛 Manage Wallets', callback_data: 'manage_wallets' }
+          { text: "🪙 Create Token", callback_data: "create_token" },
+          { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
         ],
         [
-          { text: '💰 Check Balance', callback_data: 'check_balance' },
-          { text: '📋 Help', callback_data: 'help_info' }
+          { text: "💰 Check Balance", callback_data: "check_balance" },
+          { text: "📋 Help", callback_data: "help_info" },
         ],
-        [
-          { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-        ]
-      ]
+        [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+      ],
     };
 
     await ctx.reply(statusMessage, {
-      parse_mode: 'MarkdownV2',
-      reply_markup: keyboard
+      parse_mode: "HTML",
+      reply_markup: keyboard,
     });
   }
 
@@ -763,22 +803,27 @@ You don't have any wallets yet\\. Create or import a wallet to get started
    */
   async handleUnknownCommand(ctx: Context, user: User): Promise<void> {
     const message = ctx.message;
-    if (!message || !('text' in message)) {
+    if (!message || !("text" in message)) {
       return;
     }
-    
-    const text = message.text || '';
-    
+
+    const text = message.text || "";
+
     // Check if user has an active session
     const session = await this.userManager.getUserSession(user.id);
-    if (session && session.state !== 'idle') {
+    if (session && session.state !== "idle") {
       await this.handleSessionInput(ctx, user, session, text);
       return;
     }
-    
+
     // Only allow /start and /help commands, everything else is treated as input
-    const firstWord = text.split(' ')[0];
-    if (!text.startsWith('/') || (text.startsWith('/') && firstWord && !['/start', '/help'].includes(firstWord))) {
+    const firstWord = text.split(" ")[0];
+    if (
+      !text.startsWith("/") ||
+      (text.startsWith("/") &&
+        firstWord &&
+        !["/start", "/help"].includes(firstWord))
+    ) {
       const simpleMessage = `
 💡 *Simple Input Mode*
 
@@ -795,22 +840,20 @@ Just type what you want to do:
       const keyboard: InlineKeyboardMarkup = {
         inline_keyboard: [
           [
-            { text: '🪙 Create Token', callback_data: 'create_token' },
-            { text: '👛 Create Wallet', callback_data: 'create_wallet' }
+            { text: "🪙 Create Token", callback_data: "create_token" },
+            { text: "👛 Create Wallet", callback_data: "create_wallet" },
           ],
           [
-            { text: '💰 Buy Tokens', callback_data: 'buy_tokens' },
-            { text: '📋 Help', callback_data: 'help_info' }
+            { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
+            { text: "📋 Help", callback_data: "help_info" },
           ],
-          [
-            { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-          ]
-        ]
+          [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+        ],
       };
 
       await ctx.reply(simpleMessage, {
-        parse_mode: 'MarkdownV2',
-        reply_markup: keyboard
+        parse_mode: "MarkdownV2",
+        reply_markup: keyboard,
       });
       return;
     }
@@ -828,47 +871,50 @@ Only these commands work:
     const keyboard: InlineKeyboardMarkup = {
       inline_keyboard: [
         [
-          { text: '🪙 Create Token', callback_data: 'create_token' },
-          { text: '👛 Create Wallet', callback_data: 'create_wallet' }
+          { text: "🪙 Create Token", callback_data: "create_token" },
+          { text: "👛 Create Wallet", callback_data: "create_wallet" },
         ],
         [
-          { text: '💰 Buy Tokens', callback_data: 'buy_tokens' },
-          { text: '📋 Help', callback_data: 'help_info' }
+          { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
+          { text: "📋 Help", callback_data: "help_info" },
         ],
-        [
-          { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-        ]
-      ]
+        [{ text: "🔙 Back to Menu", callback_data: "main_menu" }],
+      ],
     };
 
     await ctx.reply(unknownCommandMessage, {
-      parse_mode: 'MarkdownV2',
-      reply_markup: keyboard
+      parse_mode: "MarkdownV2",
+      reply_markup: keyboard,
     });
   }
 
   /**
    * Handle session-based input
    */
-  private async handleSessionInput(ctx: Context, user: User, session: any, text: string): Promise<void> {
+  private async handleSessionInput(
+    ctx: Context,
+    user: User,
+    session: any,
+    text: string
+  ): Promise<void> {
     switch (session.state) {
-      case 'waiting_for_wallet_name':
+      case "waiting_for_wallet_name":
         await this.createWalletWithName(ctx, user, text);
         break;
-      case 'waiting_for_token_name':
+      case "waiting_for_token_name":
         await this.createTokenWithName(ctx, user, text);
         break;
-      case 'waiting_for_private_key':
+      case "waiting_for_private_key":
         // Handle private key input for wallet import
-        await ctx.reply('⏳ *Processing wallet import...*', {
-          parse_mode: 'MarkdownV2'
+        await ctx.reply("⏳ *Processing wallet import...*", {
+          parse_mode: "MarkdownV2",
         });
         // Clear session after processing
         await this.userManager.clearUserSession(user.id);
         break;
       default:
-        await ctx.reply('❌ *Invalid session state*', {
-          parse_mode: 'MarkdownV2'
+        await ctx.reply("❌ *Invalid session state*", {
+          parse_mode: "MarkdownV2",
         });
         await this.userManager.clearUserSession(user.id);
     }
@@ -877,39 +923,50 @@ Only these commands work:
   /**
    * Create token with provided name
    */
-  private async createTokenWithName(ctx: Context, user: User, tokenName: string): Promise<void> {
+  private async createTokenWithName(
+    ctx: Context,
+    user: User,
+    tokenName: string
+  ): Promise<void> {
     try {
       // Show processing message
-      await ctx.reply('⏳ *Creating token\\.\\.\\.*', {
-        parse_mode: 'MarkdownV2'
+      await ctx.reply("⏳ *Creating token\\.\\.\\.*", {
+        parse_mode: "MarkdownV2",
       });
 
       // Check if user has wallets
       if (user.wallets.length === 0) {
-        await ctx.reply('❌ *No wallets found*\n\nPlease create a wallet first using /create\\_wallet', {
-          parse_mode: 'MarkdownV2'
-        });
+        await ctx.reply(
+          "❌ *No wallets found*\n\nPlease create a wallet first using /create\\_wallet",
+          {
+            parse_mode: "MarkdownV2",
+          }
+        );
         return;
       }
 
       // Use the first active wallet for token creation
-      const activeWallet = user.wallets.find(w => w.isActive) || user.wallets[0];
-      
+      const activeWallet =
+        user.wallets.find((w) => w.isActive) || user.wallets[0];
+
       if (!activeWallet) {
-        await ctx.reply('❌ *No active wallet found*\n\nPlease create or activate a wallet first', {
-          parse_mode: 'MarkdownV2'
-        });
+        await ctx.reply(
+          "❌ *No active wallet found*\n\nPlease create or activate a wallet first",
+          {
+            parse_mode: "MarkdownV2",
+          }
+        );
         return;
       }
-      
+
       // Create token metadata
       const metadata = {
         name: tokenName,
         symbol: tokenName.substring(0, 3).toUpperCase(),
         description: `${tokenName} token created via Pump Swap Bot`,
-        image_url: 'https://example.com/default.png',
-        telegram_link: 'https://t.me/pumpswapbot',
-        twitter_link: 'https://twitter.com/pumpswapbot'
+        image_url: "https://example.com/default.png",
+        telegram_link: "https://t.me/pumpswapbot",
+        twitter_link: "https://twitter.com/pumpswapbot",
       };
 
       // Call Rust API for token creation
@@ -918,7 +975,9 @@ Only these commands work:
           metadata,
           user_id: user.id,
           wallet_id: activeWallet.id,
-          private_key: bs58.encode(this.walletManager.getKeypairFromWallet(activeWallet).secretKey)
+          private_key: bs58.encode(
+            this.walletManager.getKeypairFromWallet(activeWallet).secretKey
+          ),
         });
 
         const successMessage = `
@@ -943,31 +1002,32 @@ Description: ${metadata.description}
         const keyboard: InlineKeyboardMarkup = {
           inline_keyboard: [
             [
-              { text: '💰 Buy Tokens', callback_data: 'buy_tokens' },
-              { text: '💸 Sell Tokens', callback_data: 'sell_tokens' }
+              { text: "💰 Buy Tokens", callback_data: "buy_tokens" },
+              { text: "💸 Sell Tokens", callback_data: "sell_tokens" },
             ],
             [
-              { text: '👛 Manage Wallets', callback_data: 'manage_wallets' },
-              { text: '🔙 Back to Menu', callback_data: 'main_menu' }
-            ]
-          ]
+              { text: "👛 Manage Wallets", callback_data: "manage_wallets" },
+              { text: "🔙 Back to Menu", callback_data: "main_menu" },
+            ],
+          ],
         };
 
         await ctx.reply(successMessage, {
-          reply_markup: keyboard
+          reply_markup: keyboard,
         });
-
       } catch (apiError) {
-        console.error('API Error creating token:', apiError);
-        await ctx.reply('❌ Failed to create token\n\nAPI Error: ' + (apiError as Error).message);
+        console.error("API Error creating token:", apiError);
+        await ctx.reply(
+          "❌ Failed to create token\n\nAPI Error: " +
+            (apiError as Error).message
+        );
       }
 
       // Clear session
       await this.userManager.clearUserSession(user.id);
-
     } catch (error) {
-      console.error('Error creating token:', error);
-      await ctx.reply('❌ Failed to create token\n\nPlease try again later');
+      console.error("Error creating token:", error);
+      await ctx.reply("❌ Failed to create token\n\nPlease try again later");
     }
   }
 
@@ -975,4 +1035,4 @@ Description: ${metadata.description}
   async handleWallets(ctx: Context, user: User): Promise<void> {
     await this.handleWallet(ctx, user);
   }
-} 
+}

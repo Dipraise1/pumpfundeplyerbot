@@ -20,10 +20,12 @@ Pump Swap Bot is a professional Telegram bot that enables users to create tokens
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - **Rust** 1.70+ ([Install](https://rustup.rs/))
 - **Node.js** 18+ ([Install](https://nodejs.org/))
 
 ### Installation
+
 ```bash
 # Clone and setup
 git clone <repository-url>
@@ -31,6 +33,9 @@ cd pumpswapbot
 
 # Install dependencies
 npm install
+
+pnpm run internal
+
 cargo build --release
 
 # Configure bot
@@ -48,6 +53,7 @@ npm start             # Frontend
 ## 📱 Usage
 
 ### Bot Commands
+
 - `/start` - Main menu
 - `/create_wallet <name>` - Create wallet
 - `/create <name> <symbol> <description> <image_url>` - Create token
@@ -57,12 +63,14 @@ npm start             # Frontend
 - `/help` - Get help
 
 ### Interactive Mode
+
 - Type "MyWallet" - Creates a wallet
 - Type "TestToken" - Creates a token with default metadata
 
 ## 🔧 Configuration
 
 Edit `config/config.json`:
+
 ```json
 {
   "telegram_token": "your_telegram_bot_token",
@@ -125,6 +133,7 @@ npm start             # Frontend (Telegram bot)
 ## 🔧 Recent Updates
 
 ### v1.1.0 - Full Pump.Fun Integration
+
 - ✅ **Real Solana Transactions** - No more mock data
 - ✅ **Borsh Serialization** - Proper instruction data serialization
 - ✅ **Bonding Curve Calculations** - Real-time price calculations
@@ -134,6 +143,7 @@ npm start             # Frontend (Telegram bot)
 - ✅ **Unit Tests** - Validation and calculation tests
 
 ### Technical Improvements
+
 - **Backend**: Full Pump.Fun client with real blockchain interactions
 - **Frontend**: Fixed validation and type mismatches
 - **Configuration**: Centralized in config.json

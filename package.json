@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/frontend/index.js",
     "dev": "tsc && node dist/frontend/index.js",
+    "internal": "concurrently \"tsx watch src/frontend/server/main.ts\" \"tsx watch src/frontend/index.ts\"",
     "test": "node tests/integration/test-real-integration.js"
   },
   "keywords": [
@@ -29,16 +30,21 @@
     "@solana/spl-token": "^0.3.9",
     "@solana/web3.js": "^1.87.6",
     "axios": "^1.6.2",
+    "borsh": "^2.0.0",
     "bs58": "^5.0.0",
     "crypto": "^1.0.1",
     "dotenv": "^17.2.1",
+    "express": "^5.1.0",
     "telegraf": "^4.15.6",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.4",
+    "@types/express": "^5.0.3",
     "@types/node": "^20.10.0",
     "@types/uuid": "^9.0.7",
+    "cors": "^2.8.5",
+    "tsx": "^4.20.3",
     "typescript": "^5.3.2"
   },
   "engines": {

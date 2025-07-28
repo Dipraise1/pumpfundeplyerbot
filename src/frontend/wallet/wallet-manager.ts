@@ -1,21 +1,30 @@
-import { Wallet, User } from '../types';
-import { Keypair, Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import * as crypto from 'crypto';
-import * as bs58 from 'bs58';
-import { v4 as uuidv4 } from 'uuid';
-import { RustApiClient } from '../utils/rust-api-client';
+import { Wallet, User } from "../types";
+import {
+  Keypair,
+  Connection,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
+import * as crypto from "crypto";
+import * as bs58 from "bs58";
+import { v4 as uuidv4 } from "uuid";
+import { RustApiClient } from "../utils/rust-api-client";
 
 export class WalletManager {
   private encryptionKey: string;
   private rustApiClient: RustApiClient;
   private connection: Connection;
 
-  constructor(encryptionKey: string, rustApiClient: RustApiClient, rpcUrl?: string) {
+  constructor(
+    encryptionKey: string,
+    rustApiClient: RustApiClient,
+    rpcUrl?: string
+  ) {
     this.encryptionKey = encryptionKey;
     this.rustApiClient = rustApiClient;
     this.connection = new Connection(
-      rpcUrl || 'https://api.mainnet-beta.solana.com',
-      'confirmed'
+      rpcUrl || "https://api.mainnet-beta.solana.com",
+      "confirmed"
     );
   }
 
@@ -27,10 +36,10 @@ export class WalletManager {
       const keypair = Keypair.generate();
       const publicKey = keypair.publicKey.toBase58();
       const privateKey = bs58.encode(keypair.secretKey);
-      
+
       // Encrypt private key for storage
       const encryptedPrivateKey = this.encryptPrivateKey(privateKey);
-      
+
       const wallet: Wallet = {
         id: uuidv4(),
         name,
@@ -39,7 +48,7 @@ export class WalletManager {
         balance: 0,
         isActive: true,
         createdAt: new Date(),
-        lastUsed: new Date()
+        lastUsed: new Date(),
       };
 
       // Get initial balance from Solana network
@@ -47,29 +56,59 @@ export class WalletManager {
         const balance = await this.getWalletBalance(publicKey);
         wallet.balance = balance;
       } catch (error) {
-        console.warn('Failed to get initial balance:', error);
+        console.warn("Failed to get initial balance:", error);
         // Continue with 0 balance
       }
 
       return wallet;
     } catch (error) {
-      console.error('Error creating wallet:', error);
-      throw new Error('Failed to create wallet');
+      console.error("Error creating wallet:", error);
+      throw new Error("Failed to create wallet");
     }
   }
 
   /**
    * Import a wallet using private key
    */
-  async importWallet(userId: number, name: string, privateKeyBase58: string): Promise<Wallet> {
+  async importWallet(
+    userId: number,
+    name: string,
+    privateKeyInput: string
+  ): Promise<Wallet> {
     try {
-      // Validate private key
-      const secretKey = bs58.decode(privateKeyBase58);
+      let secretKey: Uint8Array;
+
+      // Try to parse key in multiple formats
+      if (privateKeyInput.startsWith("[")) {
+        // JSON array format (Uint8Array)
+        const parsed = JSON.parse(privateKeyInput);
+        if (!Array.isArray(parsed)) {
+          throw new Error("Invalid private key array format");
+        }
+        secretKey = Uint8Array.from(parsed);
+      } else {
+        try {
+          // Try base58 decode (Solana-style)
+          secretKey = bs58.decode(privateKeyInput);
+        } catch {
+          try {
+            // Fallback to base64
+            secretKey = Uint8Array.from(Buffer.from(privateKeyInput, "base64"));
+          } catch {
+            throw new Error(
+              "Private key is not valid base58, base64, or JSON array"
+            );
+          }
+        }
+      }
+
+      // Generate Keypair and public key
       const keypair = Keypair.fromSecretKey(secretKey);
       const publicKey = keypair.publicKey.toBase58();
-      
-      const encryptedPrivateKey = this.encryptPrivateKey(privateKeyBase58);
-      
+
+      // Encrypt the private key for storage
+      const encryptedPrivateKey = this.encryptPrivateKey(privateKeyInput);
+
       const wallet: Wallet = {
         id: uuidv4(),
         name,
@@ -78,21 +117,19 @@ export class WalletManager {
         balance: 0,
         isActive: true,
         createdAt: new Date(),
-        lastUsed: new Date()
+        lastUsed: new Date(),
       };
 
-      // Get balance from Solana network
+      // Try to get wallet balance (non-fatal)
       try {
-        const balance = await this.getWalletBalance(publicKey);
-        wallet.balance = balance;
+        wallet.balance = await this.getWalletBalance(publicKey);
       } catch (error) {
-        console.warn('Failed to get balance for imported wallet:', error);
-        // Continue with 0 balance
+        console.warn("⚠️ Failed to get balance for imported wallet:", error);
       }
 
       return wallet;
     } catch (error) {
-      throw new Error('Invalid private key format');
+      throw new Error("Invalid private key format");
     }
   }
 
@@ -105,7 +142,7 @@ export class WalletManager {
       const balance = await this.connection.getBalance(pubKey);
       return balance / LAMPORTS_PER_SOL; // Convert lamports to SOL
     } catch (error) {
-      console.error('Error getting wallet balance:', error);
+      console.error("Error getting wallet balance:", error);
       return 0;
     }
   }
@@ -113,23 +150,30 @@ export class WalletManager {
   /**
    * Get token balance for a specific token
    */
-  async getTokenBalance(walletPublicKey: string, tokenMint: string): Promise<number> {
+  async getTokenBalance(
+    walletPublicKey: string,
+    tokenMint: string
+  ): Promise<number> {
     try {
-      const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+      const { getAssociatedTokenAddress } = await import("@solana/spl-token");
       const walletPubKey = new PublicKey(walletPublicKey);
       const mintPubKey = new PublicKey(tokenMint);
-      
-      const tokenAccount = await getAssociatedTokenAddress(mintPubKey, walletPubKey);
-      
+
+      const tokenAccount = await getAssociatedTokenAddress(
+        mintPubKey,
+        walletPubKey
+      );
+
       try {
-        const tokenAccountInfo = await this.connection.getTokenAccountBalance(tokenAccount);
+        const tokenAccountInfo =
+          await this.connection.getTokenAccountBalance(tokenAccount);
         return Number(tokenAccountInfo.value.amount);
       } catch (error) {
         // Token account doesn't exist, return 0
         return 0;
       }
     } catch (error) {
-      console.error('Error getting token balance:', error);
+      console.error("Error getting token balance:", error);
       return 0;
     }
   }
@@ -142,7 +186,7 @@ export class WalletManager {
     return {
       ...wallet,
       balance,
-      lastUsed: new Date()
+      lastUsed: new Date(),
     };
   }
 
@@ -159,20 +203,23 @@ export class WalletManager {
    * Validate wallet exists and belongs to user
    */
   validateWalletOwnership(user: User, walletId: string): Wallet | null {
-    return user.wallets.find(w => w.id === walletId) || null;
+    return user.wallets.find((w) => w.id === walletId) || null;
   }
 
   /**
    * Get active wallets for user
    */
   getActiveWallets(user: User): Wallet[] {
-    return user.wallets.filter(w => w.isActive);
+    return user.wallets.filter((w) => w.isActive);
   }
 
   /**
    * Check if wallet has sufficient balance for transaction
    */
-  async hasSufficientBalance(wallet: Wallet, requiredSol: number): Promise<boolean> {
+  async hasSufficientBalance(
+    wallet: Wallet,
+    requiredSol: number
+  ): Promise<boolean> {
     const balance = await this.getWalletBalance(wallet.publicKey);
     return balance >= requiredSol;
   }
@@ -180,33 +227,38 @@ export class WalletManager {
   /**
    * Get transaction history for wallet
    */
-  async getTransactionHistory(walletPublicKey: string, limit: number = 10): Promise<any[]> {
+  async getTransactionHistory(
+    walletPublicKey: string,
+    limit: number = 10
+  ): Promise<any[]> {
     try {
       const pubKey = new PublicKey(walletPublicKey);
-      const signatures = await this.connection.getSignaturesForAddress(pubKey, { limit });
-      
+      const signatures = await this.connection.getSignaturesForAddress(pubKey, {
+        limit,
+      });
+
       const transactions = await Promise.all(
         signatures.map(async (sig) => {
           try {
             const tx = await this.connection.getTransaction(sig.signature, {
-              maxSupportedTransactionVersion: 0
+              maxSupportedTransactionVersion: 0,
             });
             return {
               signature: sig.signature,
               slot: sig.slot,
               blockTime: sig.blockTime,
-              transaction: tx
+              transaction: tx,
             };
           } catch (error) {
-            console.warn('Failed to get transaction:', sig.signature);
+            console.warn("Failed to get transaction:", sig.signature);
             return null;
           }
         })
       );
-      
-      return transactions.filter(tx => tx !== null);
+
+      return transactions.filter((tx) => tx !== null);
     } catch (error) {
-      console.error('Error getting transaction history:', error);
+      console.error("Error getting transaction history:", error);
       return [];
     }
   }
@@ -216,32 +268,32 @@ export class WalletManager {
    */
   decryptPrivateKey(encryptedPrivateKey: string): string {
     try {
-      const parts = encryptedPrivateKey.split(':');
+      const parts = encryptedPrivateKey.split(":");
       if (parts.length !== 3) {
         // Try to decode as base64 (fallback for development)
-        return Buffer.from(encryptedPrivateKey, 'base64').toString('utf8');
+        return Buffer.from(encryptedPrivateKey, "base64").toString("utf8");
       }
 
-      const iv = Buffer.from(parts[0] || '', 'hex');
-      const authTag = Buffer.from(parts[1] || '', 'hex');
-      const encrypted = Buffer.from(parts[2] || '', 'hex');
+      const iv = Buffer.from(parts[0] || "", "hex");
+      const authTag = Buffer.from(parts[1] || "", "hex");
+      const encrypted = Buffer.from(parts[2] || "", "hex");
 
-      const algorithm = 'aes-256-gcm';
-      const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
-      
+      const algorithm = "aes-256-gcm";
+      const key = crypto.scryptSync(this.encryptionKey, "salt", 32);
+
       const decipher = crypto.createDecipheriv(algorithm, key, iv) as any;
-      decipher.setAAD(Buffer.from('pump-swap-bot', 'utf8'));
+      decipher.setAAD(Buffer.from("pump-swap-bot", "utf8"));
       decipher.setAuthTag(authTag);
-      
+
       const decrypted = Buffer.concat([
         decipher.update(encrypted),
-        decipher.final()
+        decipher.final(),
       ]);
-      
-      return decrypted.toString('utf8');
+
+      return decrypted.toString("utf8");
     } catch (error) {
-      console.error('Error decrypting private key:', error);
-      throw new Error('Failed to decrypt private key');
+      console.error("Error decrypting private key:", error);
+      throw new Error("Failed to decrypt private key");
     }
   }
 
@@ -250,26 +302,26 @@ export class WalletManager {
    */
   private encryptPrivateKey(privateKey: string): string {
     try {
-      const algorithm = 'aes-256-gcm';
-      const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
+      const algorithm = "aes-256-gcm";
+      const key = crypto.scryptSync(this.encryptionKey, "salt", 32);
       const iv = crypto.randomBytes(16);
-      
+
       // Use createCipheriv for modern Node.js compatibility
       const cipher = crypto.createCipheriv(algorithm, key, iv) as any;
-      cipher.setAAD(Buffer.from('pump-swap-bot', 'utf8'));
-      
+      cipher.setAAD(Buffer.from("pump-swap-bot", "utf8"));
+
       const encrypted = Buffer.concat([
-        cipher.update(privateKey, 'utf8'),
-        cipher.final()
+        cipher.update(privateKey, "utf8"),
+        cipher.final(),
       ]);
-      
+
       const authTag = cipher.getAuthTag();
-      
-      return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted.toString('hex')}`;
+
+      return `${iv.toString("hex")}:${authTag.toString("hex")}:${encrypted.toString("hex")}`;
     } catch (error) {
-      console.error('Error encrypting private key:', error);
+      console.error("Error encrypting private key:", error);
       // Fallback to simple encoding for development
-      return Buffer.from(privateKey).toString('base64');
+      return Buffer.from(privateKey).toString("base64");
     }
   }
-} 
+}
