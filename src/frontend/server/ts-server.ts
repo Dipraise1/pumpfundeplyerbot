@@ -7,11 +7,17 @@ import {
   CreateTokenResponse,
   BundleResponse,
 } from "../types";
+import dotenv from "dotenv";
 
+dotenv.config();
 export class TypeApiClient {
   private client: AxiosInstance;
 
-  constructor(baseUrl: string = "http://127.0.0.1:8080") {
+  constructor(
+    baseUrl: string = process.env.NODE_ENV === "production"
+      ? "https://pumpfundeplyerbot.onrender.com"
+      : "http://localhost:8080"
+  ) {
     this.client = axios.create({
       baseURL: baseUrl,
       timeout: 30000,

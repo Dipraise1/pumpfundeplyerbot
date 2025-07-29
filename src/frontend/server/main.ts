@@ -15,7 +15,7 @@ export async function startApiServer(): Promise<void> {
 
   // Create and start API server
   const apiServer = new ApiServer(pumpFunClient, jitoClient);
-  apiServer.start(8080);
+  apiServer.start(parseInt(process.env.PORT || "8080", 10));
 }
 
 if (require.main === module) {

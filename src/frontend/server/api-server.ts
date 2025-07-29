@@ -265,8 +265,8 @@ export class ApiServer {
   }
 
   public start(port: number = 8080): void {
-    this.app.listen(port, "127.0.0.1", () => {
-      console.log(`Starting API server on http://127.0.0.1:${port}`);
+    this.app.listen(port, "0.0.0.0", () => {
+      console.log(`✅ API server running on http://0.0.0.0:${port}`);
     });
   }
 }
