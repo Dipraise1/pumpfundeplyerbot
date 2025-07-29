@@ -40,6 +40,7 @@ export interface TransactionResult {
   error?: string;
   feePaid?: number;
   tokenAddress?: string;
+  transactionId?: string;
 }
 
 export interface BondingCurveData {

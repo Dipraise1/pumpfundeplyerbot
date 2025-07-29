@@ -36,7 +36,7 @@ export class TypeApiClient {
     request: TokenCreationRequest
   ): Promise<CreateTokenResponse> {
     try {
-      console.log("Creating token with request:", request);
+      // console.log("Creating token with request:", request);
       const response = await this.client.post<RustApiResponse>(
         "/api/token/create",
         {
@@ -50,7 +50,7 @@ export class TypeApiClient {
       if (!response.data.success) {
         throw new Error(response.data.error || "Token creation failed");
       }
-
+      // console.log("Token created successfully:", response.data);
       return response.data.data as CreateTokenResponse;
     } catch (error: any) {
       throw new Error(

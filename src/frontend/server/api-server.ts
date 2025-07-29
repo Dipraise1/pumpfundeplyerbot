@@ -98,7 +98,7 @@ export class ApiServer {
         const response: CreateTokenResponse = {
           success: true,
           data: {
-            tokenAddress: result.signature || "", // Use signature as token address for now
+            tokenAddress: result.tokenAddress || "", // Use signature as token address for now
             transactionId: result.signature || "",
             metadata: request.metadata,
           },

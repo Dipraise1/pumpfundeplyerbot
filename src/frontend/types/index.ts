@@ -69,8 +69,8 @@ export interface SellRequest {
 
 export interface BundleTransaction {
   id: string;
-  type: 'buy' | 'sell' | 'create';
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  type: "buy" | "sell" | "create";
+  status: "pending" | "processing" | "completed" | "failed";
   transactions: string[];
   bundleId?: string;
   createdAt: Date;
@@ -99,6 +99,8 @@ export interface RustApiResponse {
 export interface CreateTokenResponse {
   token_address: string;
   transaction_id: string;
+  tokenAddress?: string;
+  transactionId?: string;
   metadata: TokenMetadata;
 }
 
@@ -108,18 +110,18 @@ export interface BundleResponse {
   transactions: string[];
 }
 
-export type Command = 
-  | '/start'
-  | '/create'
-  | '/buy'
-  | '/sell'
-  | '/help'
-  | '/wallet'
-  | '/wallets'
-  | '/create_wallet'
-  | '/import_wallet'
-  | '/balance'
-  | '/status';
+export type Command =
+  | "/start"
+  | "/create"
+  | "/buy"
+  | "/sell"
+  | "/help"
+  | "/wallet"
+  | "/wallets"
+  | "/create_wallet"
+  | "/import_wallet"
+  | "/balance"
+  | "/status";
 
 export interface CommandContext {
   userId: number;
@@ -128,4 +130,4 @@ export interface CommandContext {
   command: Command;
   args: string[];
   user: User;
-} 
+}

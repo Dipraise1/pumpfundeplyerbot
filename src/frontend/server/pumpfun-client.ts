@@ -26,6 +26,31 @@ import {
   TransactionResult,
   ValidationResult,
 } from "../types/pumpfun";
+import {
+  createMint,
+  createAssociatedTokenAccount,
+  mintTo,
+  getOrCreateAssociatedTokenAccount,
+} from "@solana/spl-token";
+
+import {
+  generateSigner,
+  signerIdentity,
+  sol,
+  publicKey,
+  createSignerFromKeypair,
+  keypairIdentity,
+  percentAmount,
+} from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { base58 } from "@metaplex-foundation/umi/serializers";
+import {
+  mplTokenMetadata,
+  createV1,
+  findMetadataPda,
+  TokenStandard,
+} from "@metaplex-foundation/mpl-token-metadata";
+import { mplToolbox } from "@metaplex-foundation/mpl-toolbox";
 
 export class PumpFunClient {
   private programId: PublicKey;
@@ -51,7 +76,7 @@ export class PumpFunClient {
     creatorKeypair: Keypair,
     connection: Connection
   ): Promise<TransactionResult> {
-    console.log("Creating token with metadata:", metadata);
+    // console.log("Creating token with metadata:", metadata);
 
     // Validate metadata
     const validation = this.validateTokenMetadata(metadata);
@@ -130,13 +155,44 @@ export class PumpFunClient {
         [creatorKeypair, tokenMint]
       );
 
-      console.log("Token created successfully:", tokenMintPubkey.toString());
-      console.log("Transaction signature:", signature);
+      // console.log("Token created successfully:", tokenMintPubkey.toString());
+      // console.log("Transaction signature:", signature);
+
+      // === METADATA CREATION ===
+
+      const umi = createUmi(connection.rpcEndpoint)
+        .use(mplTokenMetadata())
+        .use(mplToolbox());
+
+      const umiKeypair = umi.eddsa.createKeypairFromSecretKey(
+        creatorKeypair.secretKey
+      );
+      const umiTokenKeypair = umi.eddsa.createKeypairFromSecretKey(
+        tokenMint.secretKey
+      );
+      const umiTokenSigner = createSignerFromKeypair(umi, umiTokenKeypair);
+      const signer = createSignerFromKeypair(umi, umiKeypair);
+      umi.use(keypairIdentity(signer));
+
+      const createMetaTx = await createV1(umi, {
+        mint: umiTokenSigner,
+        authority: umi.identity,
+        payer: umi.identity,
+        updateAuthority: umi.identity,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json", // metadata.image_url!,
+        sellerFeeBasisPoints: percentAmount(0),
+        tokenStandard: TokenStandard.Fungible,
+      }).sendAndConfirm(umi);
+
+      // const metadataSig = base58.deserialize(createMetaTx.signature);
 
       // Return the token mint address as the token address
       return {
         success: true,
         signature: signature,
+        transactionId: signature,
         tokenAddress: tokenMintPubkey.toString(),
         feePaid: this.config.creationFee,
       };
