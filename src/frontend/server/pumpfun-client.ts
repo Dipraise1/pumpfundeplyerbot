@@ -26,6 +26,31 @@ import {
   TransactionResult,
   ValidationResult,
 } from "../types/pumpfun";
+import {
+  createMint,
+  createAssociatedTokenAccount,
+  mintTo,
+  getOrCreateAssociatedTokenAccount,
+} from "@solana/spl-token";
+
+import {
+  generateSigner,
+  signerIdentity,
+  sol,
+  publicKey,
+  createSignerFromKeypair,
+  keypairIdentity,
+  percentAmount,
+} from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { base58 } from "@metaplex-foundation/umi/serializers";
+import {
+  mplTokenMetadata,
+  createV1,
+  findMetadataPda,
+  TokenStandard,
+} from "@metaplex-foundation/mpl-token-metadata";
+import { mplToolbox } from "@metaplex-foundation/mpl-toolbox";
 
 export class PumpFunClient {
   private programId: PublicKey;
@@ -65,7 +90,7 @@ export class PumpFunClient {
     // Check creator balance
     const balance = await connection.getBalance(creatorKeypair.publicKey);
     const requiredBalance =
-      this.config.creationFee * LAMPORTS_PER_SOL + 1000000; // 1 SOL buffer
+      this.config.creationFee * LAMPORTS_PER_SOL + 10000000; // 0.01 SOL buffer for rent
 
     if (balance < requiredBalance) {
       return {
@@ -75,73 +100,47 @@ export class PumpFunClient {
     }
 
     try {
-      // Create token mint
+      // Create token mint keypair
       const tokenMint = Keypair.generate();
       const tokenMintPubkey = tokenMint.publicKey;
 
-      // Create associated token accounts
-      const creatorAta = await getAssociatedTokenAddress(
-        tokenMintPubkey,
-        creatorKeypair.publicKey
-      );
-      const programAta = await getAssociatedTokenAddress(
-        tokenMintPubkey,
-        this.programId
-      );
+      // Calculate rent for mint account
+      const mintRent = await connection.getMinimumBalanceForRentExemption(82);
 
       // Build instructions
       const instructions: TransactionInstruction[] = [];
 
-      // Create token mint instruction
+      // 1. Create the mint account
+      instructions.push(
+        SystemProgram.createAccount({
+          fromPubkey: creatorKeypair.publicKey,
+          newAccountPubkey: tokenMintPubkey,
+          lamports: mintRent,
+          space: 82,
+          programId: TOKEN_PROGRAM_ID,
+        })
+      );
+
+      // 2. Initialize the mint
       instructions.push(
         createInitializeMintInstruction(
           tokenMintPubkey,
-          9, // decimals
+          9,
           creatorKeypair.publicKey,
           creatorKeypair.publicKey
         )
       );
 
-      // Create creator ATA
-      instructions.push(
-        createAssociatedTokenAccountInstruction(
-          creatorKeypair.publicKey,
-          creatorAta,
-          creatorKeypair.publicKey,
-          tokenMintPubkey
-        )
-      );
-
-      // Create program ATA
-      instructions.push(
-        createAssociatedTokenAccountInstruction(
-          creatorKeypair.publicKey,
-          programAta,
-          this.programId,
-          tokenMintPubkey
-        )
-      );
-
-      // Initialize bonding curve (Pump.Fun specific)
-      const initCurveIx = this.createInitCurveInstruction(
-        tokenMintPubkey,
-        creatorKeypair.publicKey,
-        creatorAta,
-        programAta,
-        metadata
-      );
-      instructions.push(initCurveIx);
-
-      // Transfer creation fee
+      // 3. Transfer creation fee first (before Pump.Fun interaction)
       instructions.push(
         SystemProgram.transfer({
           fromPubkey: creatorKeypair.publicKey,
           toPubkey: this.feeAddress,
-          lamports: this.config.creationFee * LAMPORTS_PER_SOL,
+          lamports: Math.floor(this.config.creationFee * LAMPORTS_PER_SOL),
         })
       );
 
-      // Build and sign transaction
+      // Build and sign transaction (without Pump.Fun for now)
       const transaction = new Transaction().add(...instructions);
       const { blockhash } = await connection.getLatestBlockhash();
       transaction.recentBlockhash = blockhash;
@@ -156,10 +155,45 @@ export class PumpFunClient {
         [creatorKeypair, tokenMint]
       );
 
-      console.log("Token created successfully:", tokenMintPubkey.toString());
+      // console.log("Token created successfully:", tokenMintPubkey.toString());
+      // console.log("Transaction signature:", signature);
+
+      // === METADATA CREATION ===
+
+      const umi = createUmi(connection.rpcEndpoint)
+        .use(mplTokenMetadata())
+        .use(mplToolbox());
+
+      const umiKeypair = umi.eddsa.createKeypairFromSecretKey(
+        creatorKeypair.secretKey
+      );
+      const umiTokenKeypair = umi.eddsa.createKeypairFromSecretKey(
+        tokenMint.secretKey
+      );
+      const umiTokenSigner = createSignerFromKeypair(umi, umiTokenKeypair);
+      const signer = createSignerFromKeypair(umi, umiKeypair);
+      umi.use(keypairIdentity(signer));
+
+      const createMetaTx = await createV1(umi, {
+        mint: umiTokenSigner,
+        authority: umi.identity,
+        payer: umi.identity,
+        updateAuthority: umi.identity,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json", // metadata.image_url!,
+        sellerFeeBasisPoints: percentAmount(0),
+        tokenStandard: TokenStandard.Fungible,
+      }).sendAndConfirm(umi);
+
+      // const metadataSig = base58.deserialize(createMetaTx.signature);
+
+      // Return the token mint address as the token address
       return {
         success: true,
         signature: signature,
+        transactionId: signature,
+        tokenAddress: tokenMintPubkey.toString(),
         feePaid: this.config.creationFee,
       };
     } catch (error: any) {
@@ -170,7 +204,6 @@ export class PumpFunClient {
       };
     }
   }
-
   async buyTokens(
     request: BuyRequest,
     connection: Connection
@@ -338,12 +371,12 @@ export class PumpFunClient {
       result.errors.push("Invalid image URL");
     }
 
-    if (!metadata.telegram_link!) {
+    if (!metadata.telegram_link) {
       result.isValid = false;
       result.errors.push("Telegram link is required");
     }
 
-    if (!metadata.twitter_link!) {
+    if (!metadata.twitter_link) {
       result.isValid = false;
       result.errors.push("Twitter link is required");
     }

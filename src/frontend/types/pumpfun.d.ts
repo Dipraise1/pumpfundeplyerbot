@@ -39,6 +39,8 @@ export interface TransactionResult {
   bundleId?: string;
   error?: string;
   feePaid?: number;
+  tokenAddress?: string;
+  transactionId?: string;
 }
 
 export interface BondingCurveData {

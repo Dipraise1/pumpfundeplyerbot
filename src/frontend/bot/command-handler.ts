@@ -979,25 +979,26 @@ Only these commands work:
             this.walletManager.getKeypairFromWallet(activeWallet).secretKey
           ),
         });
+        // console.log(response);
+        const successMessage = `<b>✅ Token Created Successfully</b>
 
-        const successMessage = `
-✅ Token Created Successfully
+<b>Name:</b> ${metadata.name}
+<b>Symbol:</b> ${metadata.symbol}
+<b>Description:</b> ${metadata.description}
 
-Name: ${metadata.name}
-Symbol: ${metadata.symbol}
-Description: ${metadata.description}
+🔗 <b>Token Address:</b>
+<code>${response.tokenAddress}</code>
+📝 <b>Transaction ID:</b>
+<code>${response.transactionId}</code>
 
-🔗 Token Address: \`${response.token_address}\`
-📝 Transaction ID: \`${response.transaction_id}\`
-
-💡 Next Steps:
-• Use /buy ${response.token_address} 0.1 ${activeWallet.name} to buy tokens
-• Use /sell ${response.token_address} 1000 ${activeWallet.name} to sell tokens
+<b>💡 Next Steps:</b>
+• Use <code>/buy ${response.tokenAddress} 0.1 ${activeWallet.name}</code> to buy tokens  
+• Use <code>/sell ${response.tokenAddress} 1000 ${activeWallet.name}</code> to sell tokens  
 • Share your token with the community
 
-🎯 Trading Commands:
-• /buy ${response.token_address} 0.1 ${activeWallet.name}
-• /sell ${response.token_address} 1000 ${activeWallet.name}`;
+<b>🎯 Trading Commands:</b>
+• <code>/buy ${response.tokenAddress} 0.1 ${activeWallet.name}</code>  
+• <code>/sell ${response.tokenAddress} 1000 ${activeWallet.name}</code>`;
 
         const keyboard: InlineKeyboardMarkup = {
           inline_keyboard: [
@@ -1014,6 +1015,7 @@ Description: ${metadata.description}
 
         await ctx.reply(successMessage, {
           reply_markup: keyboard,
+          parse_mode: "HTML",
         });
       } catch (apiError) {
         console.error("API Error creating token:", apiError);

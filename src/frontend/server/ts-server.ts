@@ -7,11 +7,17 @@ import {
   CreateTokenResponse,
   BundleResponse,
 } from "../types";
+import dotenv from "dotenv";
 
+dotenv.config();
 export class TypeApiClient {
   private client: AxiosInstance;
 
-  constructor(baseUrl: string = "http://127.0.0.1:8080") {
+  constructor(
+    baseUrl: string = process.env.NODE_ENV === "production"
+      ? "https://pumpfundeplyerbot.onrender.com"
+      : "http://localhost:8080"
+  ) {
     this.client = axios.create({
       baseURL: baseUrl,
       timeout: 30000,
@@ -36,7 +42,7 @@ export class TypeApiClient {
     request: TokenCreationRequest
   ): Promise<CreateTokenResponse> {
     try {
-      console.log("Creating token with request:", request);
+      // console.log("Creating token with request:", request);
       const response = await this.client.post<RustApiResponse>(
         "/api/token/create",
         {
@@ -50,7 +56,7 @@ export class TypeApiClient {
       if (!response.data.success) {
         throw new Error(response.data.error || "Token creation failed");
       }
-
+      // console.log("Token created successfully:", response.data);
       return response.data.data as CreateTokenResponse;
     } catch (error: any) {
       throw new Error(

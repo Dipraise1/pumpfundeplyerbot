@@ -35,7 +35,7 @@ coverage/
 Thumbs.db
 
 # Config files with sensitive data
-config/config.json
+# config/config.json
 
 # Data
 data/backups/

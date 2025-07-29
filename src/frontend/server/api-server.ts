@@ -28,7 +28,10 @@ export class ApiServer {
     this.state = {
       pumpFunClient,
       jitoClient,
-      connection: new Connection("https://api.mainnet-beta.solana.com"),
+      // connection: new Connection("https://api.mainnet-beta.solana.com"),
+      connection: new Connection(
+        "https://devnet.helius-rpc.com/?api-key=5f3e108f-d6e0-426f-9307-99a62612616f"
+      ),
     };
 
     this.setupMiddleware();
@@ -95,7 +98,7 @@ export class ApiServer {
         const response: CreateTokenResponse = {
           success: true,
           data: {
-            tokenAddress: result.signature || "", // Use signature as token address for now
+            tokenAddress: result.tokenAddress || "", // Use signature as token address for now
             transactionId: result.signature || "",
             metadata: request.metadata,
           },
@@ -262,8 +265,8 @@ export class ApiServer {
   }
 
   public start(port: number = 8080): void {
-    this.app.listen(port, "127.0.0.1", () => {
-      console.log(`Starting API server on http://127.0.0.1:${port}`);
+    this.app.listen(port, "0.0.0.0", () => {
+      console.log(`✅ API server running on http://0.0.0.0:${port}`);
     });
   }
 }
